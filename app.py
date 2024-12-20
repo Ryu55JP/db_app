@@ -133,7 +133,7 @@ def index() -> str:
     return render_template('index.html')
 
 
-@app.rout('cds')
+@app.route('cds')
 def cds() -> str:
     """
     CD 一覧のページ（全件）.
@@ -481,80 +481,28 @@ def cd_edit(id: str) -> str:
     con = get_db()
     cur = con.cursor()
 
-    try:
-        # 文字列型で渡された CD ID を整数型へ変換する
-        order_in_series = int(order_in_series)
-    except ValueError:
-        # CD ID が整数型へ変換できない
-        return render_template('cd-edit-results.html',
-                                results='シリーズ通し番号は数値で指定してください')
     cd = cur.execute('SELECT * FROM cds WHERE id = ?',
                         (id,)).fetchone()
 
     # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
     return render_template('cd-edit.html', cd=cd)
 
-@app.route('/employee-edit/<id>')
-def employee_edit(id: str) -> str:
+@app.route('/cd-edit/<id>', methods=['POST'])
+def cd_edit_update(id: str) -> Response:
     """
-    社員編集ページ.
+    CD編集更新.
 
-    `http://localhost:5000/employee-edit/<id>` への GET メソッドによる
+    `http://localhost:5000/cd-edit/<id>` への POST メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
+    編集後の CD の情報が POST パラメータの
+    `id`, `title`, `series_name`, `order_in_series`, `issued_date`
+    に入っている（CD番号は編集できない）。
 
-    データベース接続を得て URL 中の `<id>` で指定された社員情報を取得し、
-    編集できるなら
-    テンプレート employee-edit.html
-    （社員編集フォームがあり、決定ボタンで社員編集更新の POST ができる）
-    へ情報を渡してレンダリングして返す。
-    編集できないなら
-    テンプレート employee-edit-results.html
-    へ理由を渡してレンダリングして返す。
-
-    Returns:
-      str: ページのコンテンツ
-    """
-    # データベース接続してカーソルを得る
-    con = get_db()
-    cur = con.cursor()
-
-    try:
-        # 文字列型で渡された社員番号を整数型へ変換する
-        id_num = int(id)
-    except ValueError:
-        # 社員番号が整数型へ変換できない
-        return render_template('employee-edit-results.html',
-                               results='指定された社員番号には'
-                               '使えない文字があります')
-    # 社員の存在チェックと編集対象となる社員情報の取得：
-    # employees テーブルで同じ社員番号の行を 1 行だけ取り出す
-    employee = cur.execute('SELECT * FROM employees WHERE id = ?',
-                           (id_num,)).fetchone()
-    if employee is None:
-        # 指定された社員番号の行が無い
-        return render_template('employee-edit-results.html',
-                               results='指定された社員番号は存在しません')
-
-    # 編集対象の社員情報をテンプレートへ渡してレンダリングしたものを返す
-    return render_template('employee-edit.html', employee=employee)
-
-
-@app.route('/employee-edit/<id>', methods=['POST'])
-def employee_edit_update(id: str) -> Response:
-    """
-    社員編集更新.
-
-    `http://localhost:5000/employee-edit/<id>` への POST メソッドによる
-    リクエストがあった時に Flask が呼ぶ関数。
-    編集後の社員の情報が POST パラメータの
-    `name`, `salary`, `manager_id`, `birth_year`, `start_year`
-    に入っている（社員番号は編集できない）。
-
-    データベース接続を得て URL 中の `<id>` で指定された社員情報を取得し、
-    編集できるなら、POST パラメータの社員情報をチェック、
-    問題なければ社員情報を更新し、
-    テンプレート employee-edit-results.html
-    employee_edit_results へ処理結果コードを入れてリダイレクトする。
+    データベース接続を得て URL 中の `<id>` で指定された CD 情報を取得し、
+    編集できるなら、POST パラメータの CD 情報をチェック、
+    問題なければ CD 情報を更新し、
+    テンプレート cd-edit-results.html
+    cd_edit_results へ処理結果コードを入れてリダイレクトする。
     （PRG パターンの P を受けて R を返す）
 
     Returns:
@@ -564,100 +512,39 @@ def employee_edit_update(id: str) -> Response:
     con = get_db()
     cur = con.cursor()
 
-    try:
-        # 文字列型で渡された社員番号を整数型へ変換する
-        id_num = int(id)
-    except ValueError:
-        # 社員番号が整数型へ変換できない
-        return redirect(url_for('employee_edit_results',
-                                code='id-has-invalid-charactor'))
-    # 社員番号の存在チェックをする：
-    # employees テーブルで同じ社員番号の行を 1 行だけ取り出す
-    employee = cur.execute('SELECT id FROM employees WHERE id = ?',
+
+    # CD ID の存在チェックをする：
+    # cds テーブルで同じ CD ID の行を 1 行だけ取り出す
+    cd = cur.execute('SELECT id FROM cds WHERE id = ?',
                            (id_num,)).fetchone()
-    if employee is None:
-        # 指定された社員番号の行が無い
-        return redirect(url_for('employee_edit_results',
+    if cd is None:
+        # 指定された CD ID の行が無い
+        return redirect(url_for('cd_edit_results',
                                 code='id-does-not-exist'))
 
     # リクエストされた POST パラメータの内容を取り出す
-    name = request.form['name']
-    salary_str = request.form['salary']
-    manager_id_str = request.form['manager_id']
-    birth_year_str = request.form['birth_year']
-    start_year_str = request.form['start_year']
+    title = request.form['title']
+    series_name = request.form['series_name']
+    order_in_series_str = request.form['order_in_series']
+    issued_date = request.form['issued_date']
 
-    #
-    # 上司の社員番号チェック
-    #
     try:
-        # 文字列型で渡された社員番号を整数型へ変換する
-        manager_id = int(manager_id_str)
+        # 文字列型で渡された CD ID を整数型へ変換する
+        order_in_series = int(order_in_series_str)
     except ValueError:
-        # 社員番号が整数型へ変換できない
-        return redirect(url_for('employee_edit_results',
-                                code='manager-id-has-invalid-charactor'))
-    if id_num != manager_id:
-        # 指定された社員番号と上司の社員番号が不一致
-        # →上司が別に存在する必要がある→上司の存在チェックをする：
-        # employees テーブルで指定された上司の社員番号を持つ社員
-        # の行を 1 行だけ取り出す
-        manager = cur.execute('SELECT id FROM employees WHERE id = ?',
-                              (manager_id,)).fetchone()
-        if manager is None:
-            # 指定された上司が存在しない
-            return redirect(url_for('employee_edit_results',
-                                    code='manager-id-does-not-exist'))
+        # CD ID が整数型へ変換できない
+        return render_template('cd-edit-results.html',
+                                results='シリーズ通し番号は数値で指定してください')
 
-    #
-    # 給与チェック
-    #
-    try:
-        # 文字列型で渡された給与を整数型へ変換する
-        salary = int(salary_str)
-    except ValueError:
-        # 給与が整数型へ変換できない
-        return redirect(url_for('employee_edit_results',
-                                code='salary-has-invalid-charactor'))
-
-    #
-    # 生年チェック
-    #
-    try:
-        # 文字列型で渡された生年を整数型へ変換する
-        birth_year = int(birth_year_str)
-    except ValueError:
-        # 生年が整数型へ変換できない
-        return redirect(url_for('employee_edit_results',
-                                code='birth-year-has-invalid-charactor'))
-
-    #
-    # 入社年チェック
-    #
-    try:
-        # 文字列型で渡された入社年を整数型へ変換する
-        start_year = int(start_year_str)
-    except ValueError:
-        # 入社年が整数型へ変換できない
-        return redirect(url_for('employee_edit_results',
-                                code='start-year-has-invalid-charactor'))
-
-    #
-    # 名前チェック
-    #
-    if has_control_character(name):
-        # 名前に制御文字が含まれる
-        return redirect(url_for('employee_edit_results',
-                                code='name-has-control-charactor'))
 
     # データベースを更新
     try:
-        # employees テーブルの指定された行のパラメータを更新
-        cur.execute('UPDATE employees '
-                    'SET name = ?, salary = ?, manager_id = ?, '
-                    'birth_year = ?, start_year = ? '
+        # cds テーブルの指定された行のパラメータを更新
+        cur.execute('UPDATE cds '
+                    'SET title = ?, series_name = ?, order_in_series = ?, '
+                    'issued_date = ? '
                     'WHERE id = ?',
-                    (name, salary, manager_id, birth_year, start_year, id_num))
+                    (title, series_name, order_in_series, issued_date, id))
     except sqlite3.Error:
         # データベースエラーが発生
         return redirect(url_for('employee_edit_results',
@@ -665,29 +552,27 @@ def employee_edit_update(id: str) -> Response:
     # コミット（データベース更新処理を確定）
     con.commit()
 
-    # 社員編集完了
-    return redirect(url_for('employee_edit_results',
+    # CD編集完了
+    return redirect(url_for('cd_edit_results',
                             code='updated'))
 
-
-@app.route('/employee-edit-results/<code>')
-def employee_edit_results(code: str) -> str:
+@app.route('/cd-edit-results/<code>')
+def cd_edit_results(code: str) -> str:
     """
-    社員編集結果ページ.
+    CD編集結果ページ.
 
-    `http://localhost:5000/employee-edit-result/<code>`
+    `http://localhost:5000/cd-edit-result/<code>`
     への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
 
-    PRG パターンで社員編集更新の POST 後にリダイレクトされてくる。
-    テンプレート employee-edit-results.html
+    PRG パターンでCD編集更新の POST 後にリダイレクトされてくる。
+    テンプレート cd-edit-results.html
     へ処理結果コード code に基づいたメッセージを渡してレンダリングして返す。
 
     Returns:
       str: ページのコンテンツ
     """
-    return render_template('employee-edit-results.html',
+    return render_template('cd-edit-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
-
 
 if __name__ == '__main__':
     # このスクリプトを直接実行したらデバッグ用 Web サーバで起動する
