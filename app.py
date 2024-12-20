@@ -133,7 +133,7 @@ def index() -> str:
     return render_template('index.html')
 
 
-@app.route('cds')
+@app.route('/cds')
 def cds() -> str:
     """
     CD 一覧のページ（全件）.
