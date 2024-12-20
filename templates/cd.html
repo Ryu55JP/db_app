@@ -1,0 +1,27 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>{{cds.title}}</title>
+  </head>
+  <body>
+    <h1>CD詳細</h1>
+
+    <p>
+      CDタイトル: {{cds.title}}<br>
+      品番: {{cds.id}}<br>
+      シリーズ: {{cds.series_name}}{{cds.order_in_series}}<br>
+      発売日: {{cds.issued_date}}<br>
+      <!-- ここに曲一覧を表示する -->
+    </p>
+
+    <p>
+      <a href="{{url_for('cd_edit', id=cd.id)}}">編集</a><br>
+      <a href="{{url_for('cd_del', id=cd.id)}}">削除</a>
+    </p>
+
+    <p>
+      <a href="{{url_for('cds')}}">CD一覧</a><br>
+      <a href="{{url_for('index')}}">入口のページ</a>
+    </p>
+  </body>
+</html>
