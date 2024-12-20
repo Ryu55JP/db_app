@@ -151,10 +151,12 @@ def cds() -> str:
     cur = get_db().cursor()
 
     # cds テーブルの全行から CD の情報を取り出した一覧を取得
-    cd_list = cur.execute('SELECT * FROM cds').fetchall()
+    cds = cur.execute('SELECT * FROM cds').fetchall()
+
+    print(cds)
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
-    return render_template('cds.html', cd_list=cd_list)
+    return render_template('cds.html', cds=cds)
 
 
 @app.route('/cds', methods=['POST'])
