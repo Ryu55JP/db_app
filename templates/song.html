@@ -1,0 +1,25 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>{{song.title}}</title>
+  </head>
+  <body>
+    <h1>楽曲詳細</h1>
+
+    <p>
+      CDタイトル: {{song.title}}<br>
+      品番: {{song.id}}<br>
+      <!-- ここに楽曲の収録CD一覧、披露されたコンサート一覧を表示する -->
+    </p>
+
+    <p>
+      <a href="{{url_for('song_edit', id=song.id)}}">編集</a><br>
+      <a href="{{url_for('song_del', id=song.id)}}">削除</a>
+    </p>
+
+    <p>
+      <a href="{{url_for('songs')}}">楽曲一覧</a><br>
+      <a href="{{url_for('index')}}">入口のページ</a>
+    </p>
+  </body>
+</html>

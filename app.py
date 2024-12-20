@@ -156,7 +156,6 @@ def cds() -> str:
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
     return render_template('cds.html', cds=cds)
 
-
 @app.route('/cds', methods=['POST'])
 def cds_filtered() -> str:
     """
@@ -218,7 +217,6 @@ def cd(id: str) -> str:
     # CD の情報をテンプレートへ渡してレンダリングしたものを返す
     return render_template('cd.html', cd=cd)
 
-
 @app.route('/cd-add')
 def cd_add() -> str:
     """
@@ -236,7 +234,6 @@ def cd_add() -> str:
     """
     # テンプレートへ何も渡さずにレンダリングしたものを返す
     return render_template('cd-add.html')
-
 
 @app.route('/cd-add', methods=['POST'])
 def cd_add_execute() -> Response:
@@ -581,3 +578,117 @@ def cd_edit_results(code: str) -> str:
 if __name__ == '__main__':
     # このスクリプトを直接実行したらデバッグ用 Web サーバで起動する
     app.run(debug=True)
+
+@app.route('/songs')
+def songs() -> str:
+    """
+    CD 一覧のページ（全件）.
+
+    `http://localhost:5000/cds` への GET メソッドによる
+    リクエストがあった時に Flask が呼ぶ関数。
+
+    データベース接続を得て、SELECT 文で全 CD 一覧を取得し、
+    テンプレート cds.html へ一覧を渡して埋め込んでレンダリングして返す。
+
+    Returns:
+      str: ページのコンテンツ
+    """
+    # データベース接続してカーソルを得る
+    cur = get_db().cursor()
+
+    # cds テーブルの全行から CD の情報を取り出した一覧を取得
+    songs = cur.execute('SELECT * FROM songs').fetchall()
+
+    # 一覧をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('songs.html', songs=songs)
+
+
+@app.route('/songs', methods=['POST'])
+def songs_filtered() -> str:
+    """
+    CD 一覧のページ（絞り込み）.
+
+    `http://localhost:5000/cds` への POST メソッドによる
+    リクエストがあった時に Flask が呼ぶ関数。
+    絞り込み用のタイトルが POST のパラメータ `title_filter` に入っている。
+
+    データベース接続を得て、
+    SELECT 文でリクエストされたタイトルで絞り込んだ CD 一覧を取得、
+    テンプレート cds.html へ一覧を渡して埋め込んでレンダリングして返す。
+    （これは PRG パターンではない）
+
+    Returns:
+      str: ページのコンテンツ
+    """
+    # データベース接続してカーソルを得る
+    cur = get_db().cursor()
+
+    # cds テーブルからタイトルで絞り込み、
+    # 得られた全行から CD の情報を取り出した一覧を取得
+    song_list = cur.execute('SELECT * FROM cds WHERE title LIKE ?',
+                          (request.form['title_filter'],)).fetchall()
+
+    # 一覧をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('songs.html', song_list=song_list)
+
+@app.route('/song/<id>')
+def song(id: str) -> str:
+    """
+    CD 詳細ページ.
+
+    `http://localhost:5000/cd/<id>` への GET メソッドによる
+    リクエストがあった時に Flask が呼ぶ関数。
+
+    データベース接続を得て、
+    URL 中の `<id>` で指定された CD の全情報を取得し、
+    テンプレート cd.html へ情報を渡して埋め込んでレンダリングして返す。
+    指定された CD が見つからない場合は
+    テンプレート cd-not-found.html
+    （CD が見つからない旨が記載されている）
+    をレンダリングして返す。
+
+    Returns:
+      str: ページのコンテンツ
+    """
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    # cds テーブルから指定された CD ID の行を 1 行だけ取り出す
+    cd = cur.execute('SELECT * FROM songs WHERE id = ?', (id,)).fetchone()
+
+    if cd is None:
+        # 指定された CD ID の行が無かった
+        return render_template('song-not-found.html')
+
+    # CD の情報をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('song.html', song=song)
+
+@app.route('/song-add')
+def song_add() -> str:
+    """
+    CD 追加ページ.
+
+    `http://localhost:5000/cd-add` への GET メソッドによる
+    リクエストがあった時に Flask が呼ぶ関数。
+
+    テンプレート cd-add.html
+    （CD 追加フォームがあり、追加ボタンで CD 追加実行の POST ができる）
+    をレンダリングして返す。
+
+    Returns:
+      str: ページのコンテンツ
+    """
+    # テンプレートへ何も渡さずにレンダリングしたものを返す
+    return render_template('songs.html')
+
+
+@app.route('/song_edit')
+def song_edit() -> str:
+    return render_template('songs.html')
+
+@app.route('/song_del')
+def song_del() -> str:
+    return render_template('songs.html')
+
+
