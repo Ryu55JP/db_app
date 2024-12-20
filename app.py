@@ -22,7 +22,7 @@ app = Flask(__name__)
 RESULT_MESSAGES: Final[dict[str, str]] = {
     'include-invalid-charactor':
     '指定された情報には使えない文字があります - '
-    '数字のみで指定してください',
+    'シリーズ通し番号は数字のみで指定してください',
     'id-already-exists':
     '指定された社員番号は既に存在します - '
     '存在しない社員番号を指定してください',
@@ -50,8 +50,8 @@ RESULT_MESSAGES: Final[dict[str, str]] = {
     '制御文字は指定しないでください',
     'database-error':
     'データベースエラー',
-    'added':
-    '社員を追加しました',
+    'cd-added':
+    'CDを追加しました',
     'deleted':
     '削除しました',
     'updated':
@@ -152,8 +152,6 @@ def cds() -> str:
 
     # cds テーブルの全行から CD の情報を取り出した一覧を取得
     cds = cur.execute('SELECT * FROM cds').fetchall()
-
-    print(cds)
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
     return render_template('cds.html', cds=cds)
@@ -262,9 +260,8 @@ def cd_add_execute() -> Response:
     con = get_db()
     cur = con.cursor()
 
-    # title取得、チェック
+    # タイトル取得、チェック
     title = request.form['title']
-    # タイトルチェック
     if has_control_character(title):
         # タイトルに制御文字が含まれる
         return redirect(url_for('cd_add_results',
@@ -279,25 +276,26 @@ def cd_add_execute() -> Response:
 
     # series_name取得、チェック
     series_name = request.form['series_name']
-    if has_control_character(series_name):
-        # タイトルに制御文字が含まれる
-        return redirect(url_for('cd_add_results',
-                                code='include-control-charactor'))
+    if series_name and has_control_character(series_name):
+      # タイトルに制御文字が含まれる
+      return redirect(url_for('cd_add_results',
+                  code='include-control-charactor'))
 
     # order_in_series取得、チェック
     order_in_series = request.form['order_in_series']
-    try:
-        # 文字列型で渡された社員番号を整数型へ変換する
-        id = int(order_in_series)
-    except ValueError:
-        # 社員番号が整数型へ変換できない
+    if order_in_series:
+      try:
+        # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
+        order_in_series = int(order_in_series)
+      except ValueError:
+        # シリーズ通し番号が整数型へ変換できない
         return redirect(url_for('cd_add_results',
-                                code='include-invalid-charactor'))
+                    code='include-invalid-charactor'))
 
-    if has_control_character(order_in_series):
-        # タイトルに制御文字が含まれる
+      if has_control_character(order_in_series):
+        # シリーズ通し番号に制御文字が含まれる
         return redirect(url_for('cd_add_results',
-                                code='include-control-charactor'))
+                    code='include-control-charactor'))
 
     # issued_date取得、チェック
     issued_date = request.form['issued_date']
@@ -311,8 +309,8 @@ def cd_add_execute() -> Response:
         # cds テーブルに指定されたパラメータの行を挿入
         cur.execute('INSERT INTO cds '
                     '(id, title, series_name, order_in_series, issued_date) '
-                    'VALUES (?, ?, ?, ?, ?, ?)',
-                    (id, name, salary, manager_id, birth_year, start_year))
+                    'VALUES (?, ?, ?, ?, ?)',
+                    (id, title, series_name, order_in_series, issued_date))
     except sqlite3.Error:
         # データベースエラーが発生
         return redirect(url_for('cd_add_results',
@@ -320,9 +318,9 @@ def cd_add_execute() -> Response:
     # コミット（データベース更新処理を確定）
     con.commit()
 
-    # 社員追加完了
+    # CD追加完了
     return redirect(url_for('cd_add_results',
-                            code='added'))
+                            code='cd-added'))
 
 @app.route('/cd-add-results/<code>')
 def cd_add_results(code: str) -> str:
@@ -376,6 +374,7 @@ def cd_del(id: str) -> str:
         return render_template('cd-del-results.html',
                                results='指定されたCD番号は存在しません')
 
+    return render_template('cd-del.html', id=id)
 
 @app.route('/cd-del/<id>', methods=['POST'])
 def cd_del_execute(id: str) -> Response:
@@ -430,7 +429,7 @@ def cd_del_execute(id: str) -> Response:
     con.commit()
 
     # CD削除完了
-    return redirect(url_for('cd_add_results',
+    return redirect(url_for('cd_del_results',
                             code='deleted'))
 
 @app.route('/cd-del-results/<code>')
@@ -510,35 +509,46 @@ def cd_edit_update(id: str) -> Response:
     # CD ID の存在チェックをする：
     # cds テーブルで同じ CD ID の行を 1 行だけ取り出す
     cd = cur.execute('SELECT id FROM cds WHERE id = ?',
-                           (id_num,)).fetchone()
+                           (id,)).fetchone()
     if cd is None:
         # 指定された CD ID の行が無い
         return redirect(url_for('cd_edit_results',
                                 code='id-does-not-exist'))
 
     # リクエストされた POST パラメータの内容を取り出す
+
+    title = request.form.get('title', '')
+
     title = request.form['title']
     series_name = request.form['series_name']
     order_in_series_str = request.form['order_in_series']
     issued_date = request.form['issued_date']
 
-    try:
+    if order_in_series_str:
+      try:
         # 文字列型で渡された CD ID を整数型へ変換する
         order_in_series = int(order_in_series_str)
-    except ValueError:
+      except ValueError:
         # CD ID が整数型へ変換できない
         return render_template('cd-edit-results.html',
-                                results='シリーズ通し番号は数値で指定してください')
+                    results='シリーズ通し番号は数値で指定してください')
 
 
     # データベースを更新
     try:
-        # cds テーブルの指定された行のパラメータを更新
+      # cds テーブルの指定された行のパラメータを更新
+      if order_in_series_str:
         cur.execute('UPDATE cds '
                     'SET title = ?, series_name = ?, order_in_series = ?, '
                     'issued_date = ? '
                     'WHERE id = ?',
                     (title, series_name, order_in_series, issued_date, id))
+      else:
+        cur.execute('UPDATE cds '
+                    'SET title = ?, series_name = ?,'
+                    'issued_date = ? '
+                    'WHERE id = ?',
+                    (title, series_name, issued_date, id))
     except sqlite3.Error:
         # データベースエラーが発生
         return redirect(url_for('employee_edit_results',
