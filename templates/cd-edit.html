@@ -1,0 +1,28 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>CD情報編集</title>
+  </head>
+  <body>
+    <h1>CD情報編集</h1>
+
+    <p>
+      <form method="POST"
+            action="{{url_for('cd_edit', id=cd.id)}}">
+        CDタイトル: <input type="text" name="title" value="{{cd.title}}"><br>
+        品番: <input type="text" name="id" value="{{cd.id}}"><br>
+        シリーズ: <input type="text" name="series_name"
+                       value="{{cd.order_in_series}}"> - <input type="text" name="order_in_series"
+                       value="{{cd.order_in_series}}"><br>
+        発売日: <input type="text" name="issued_date"
+                     value="{{cd.issued_date}}"><br>
+        <input type="submit" value="決定">
+      </form>
+    </p>
+
+    <p>
+      <a href="{{url_for('cds')}}">CD一覧</a><br>
+      <a href="{{url_for('index')}}">入口のページ</a>
+    </p>
+  </body>
+</html>

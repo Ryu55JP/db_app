@@ -1,0 +1,32 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>CD一覧</title>
+  </head>
+  <body>
+    <h1>CD一覧</h1>
+
+    <p>
+      <form method="POST" action="{{url_for('cds_filtered')}}">
+        CDタイトル: <input type="text" name="name_filter"><br>
+        <input type="submit" value="絞り込む"><br>
+        （ワイルドカード文字として%が使えます）
+      </form>
+      <a href="{{url_for('cd_add')}}">CD追加</a>
+    </p>
+
+    {% for cd in cds %}
+    <p>
+      CDタイトル: {{ cd.title or 'タイトルなし' }}<br>
+      品番: {{ cd.id or 'IDなし' }}<br>
+      シリーズ名: {{ cd.series_name or 'その他' }} - {{ cd.order_in_series or '' }}<br>
+      発売日: {{ cd.issued_date or '' }}<br>
+      <a href="{{ url_for('cd', id=cd.id) }}">詳細</a>
+    </p>
+    {% endfor %}
+
+    <p>
+      <a href="{{url_for('index')}}">入口のページ</a>
+    </p>
+  </body>
+</html>

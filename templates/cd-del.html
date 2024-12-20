@@ -1,0 +1,22 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>CD削除</title>
+  </head>
+  <body>
+    <h1>CD削除</h1>
+
+    <p>
+      CDのトラック内容も削除されます。<br>
+      本当にこのCDを削除しますか？<br>
+      <form method="POST" action="{{url_for('cd_del_execute', id=id)}}">
+        <input type="submit" value="削除実行">
+      </form>
+    </p>
+
+    <p>
+      <a href="{{url_for('cds')}}">CD一覧</a><br>
+      <a href="{{url_for('index')}}">入口のページ</a>
+    </p>
+  </body>
+</html>
