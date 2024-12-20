@@ -16,9 +16,11 @@
 
     {% for cd in cds %}
     <p>
-      CDタイトル: {{cds.title}}<br>
-      品番: {{cds.id}}<br>
-      <a href="{{url_for('cd', id=cds.id)}}">詳細</a>
+      CDタイトル: {{ cd.title or 'タイトルなし' }}<br>
+      品番: {{ cd.id or 'IDなし' }}<br>
+      シリーズ名: {{ cd.series_name or 'その他' }} - {{ cd.order_in_series or '' }}<br>
+      発売日: {{ cd.issued_date or '' }}<br>
+      <a href="{{ url_for('cd', id=cd.id) }}">詳細</a>
     </p>
     {% endfor %}
 

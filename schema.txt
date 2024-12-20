@@ -1,0 +1,73 @@
+CREATE TABLE cds (
+	id VARCHAR, 
+	title VARCHAR,
+	series_name VARCHAR, 
+	order_in_series INTEGER, 
+	issued_date DATE, 
+	PRIMARY KEY (id)
+);
+CREATE TABLE songs (
+	id INTEGER,
+	title VARCHAR,
+	PRIMARY KEY (id)
+);
+CREATE TABLE artists (
+	id INTEGER,
+	name VARCHAR,
+	group_name VARCHAR, 
+	PRIMARY KEY (id)
+);
+CREATE TABLE tracks (
+	cd_id VARCHAR,
+	track_number INTEGER,
+	song_id INTEGER,
+	PRIMARY KEY (cd_id, track_number),
+	FOREIGN KEY (cd_id) REFERENCES cds (id),
+	FOREIGN KEY (song_id) REFERENCES songs (id)
+);
+CREATE TABLE concerts (
+	id INTEGER, 
+	title VARCHAR,
+	held_date DATE, 
+	PRIMARY KEY (id)
+);
+CREATE TABLE performances (
+    concert_id INTEGER,
+	number_of_order INTEGER, 
+    song_id INTEGER,
+	PRIMARY KEY (concert_id, number_of_order),
+    FOREIGN KEY (concert_id) REFERENCES concerts (id),
+    FOREIGN KEY (song_id) REFERENCES songs (id)
+);
+CREATE TABLE tracks_artists (
+    cd_id VARCHAR,
+	track_number INTEGER,
+	artist_id INTEGER,
+    PRIMARY KEY (cd_id, track_number, artist_id),
+	FOREIGN KEY (cd_id, track_number) REFERENCES tracks (cd_id, track_number), 
+    FOREIGN KEY (artist_id) REFERENCES artists (id)
+);
+CREATE TABLE artists_performances (
+	artist_id INTEGER,
+	concert_id INTEGER, 
+	order_in_concert INTEGER, 
+    PRIMARY KEY (artist_id, concert_id, order_in_concert),
+	FOREIGN KEY (artist_id) REFERENCES artists (id), 
+	FOREIGN KEY (concert_id, order_in_concert) REFERENCES performances (concert_id, number_of_order) 
+);
+CREATE VIEW artists_songs AS
+    SELECT s.title AS song_title, a.name AS artist_name, c.title AS cd_title, c.issued_date AS issued_date
+    FROM songs s
+        JOIN tracks t ON t.song_id = s.id
+        JOIN tracks_artists ON tracks_artists.cd_id = t.cd_id AND tracks_artists.track_number = t.track_number
+        JOIN artists a ON a.id = tracks_artists.artist_id
+        JOIN cds c ON c.id = t.cd_id
+/* artists_songs(song_title,artist_name,cd_title,issued_date) */;
+CREATE VIEW artists_concerts AS
+    SELECT c.title AS concert_title, a.name AS artist_name, s.title AS song_title, c.held_date AS held_date
+    FROM concerts c
+        JOIN performances p ON p.concert_id = c.id
+        JOIN artists_performances ON artists_performances.concert_id = c.id
+        JOIN artists a ON a.id = artists_performances.artist_id
+        JOIN songs s ON s.id = p.song_id
+/* artists_concerts(concert_title,artist_name,song_title,held_date) */;

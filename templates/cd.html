@@ -1,16 +1,16 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
-    <title>{{cds.title}}</title>
+    <title>{{cd.title}}</title>
   </head>
   <body>
     <h1>CD詳細</h1>
 
     <p>
-      CDタイトル: {{cds.title}}<br>
-      品番: {{cds.id}}<br>
-      シリーズ: {{cds.series_name}}{{cds.order_in_series}}<br>
-      発売日: {{cds.issued_date}}<br>
+      CDタイトル: {{cd.title}}<br>
+      品番: {{cd.id}}<br>
+      シリーズ: {{cd.series_name}} - {{cd.order_in_series}}<br>
+      発売日: {{cd.issued_date}}<br>
       <!-- ここに曲一覧を表示する -->
     </p>
 

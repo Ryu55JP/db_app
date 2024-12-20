@@ -210,16 +210,8 @@ def cd(id: str) -> str:
     con = get_db()
     cur = con.cursor()
 
-    try:
-        # 文字列型で渡された CD ID を整数型へ変換する
-        id_num = int(id)
-    except ValueError:
-        # CD ID が整数型へ変換できない→不正な CD ID が指定された
-        # →データベースにあたるまでもなくそのような CD は見つからない
-        return render_template('cd-not-found.html')
-
     # cds テーブルから指定された CD ID の行を 1 行だけ取り出す
-    cd = cur.execute('SELECT * FROM cds WHERE id = ?', (id_num,)).fetchone()
+    cd = cur.execute('SELECT * FROM cds WHERE id = ?', (id,)).fetchone()
 
     if cd is None:
         # 指定された CD ID の行が無かった
