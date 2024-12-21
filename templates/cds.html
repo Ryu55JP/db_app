@@ -13,6 +13,7 @@
         （ワイルドカード文字として%が使えます）
       </form>
       <a href="{{url_for('cd_add')}}">CD追加</a>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
     </p>
 
     {% for cd in cds %}
@@ -26,6 +27,7 @@
     {% endfor %}
 
     <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

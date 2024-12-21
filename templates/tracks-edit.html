@@ -1,0 +1,32 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>トラック編集</title>
+  </head>
+  <body>
+    <h1>トラック編集</h1>
+    <p>
+      登録する楽曲は「楽曲追加」ページで登録済である必要があります。<br>
+      <a href="{{url_for('song_add')}}">楽曲追加</a>
+    </p>
+    <p>
+    <form method="POST" action="{{url_for('tracks_edit', id=cd_id)}}">
+      <p>
+        CDタイトル: {{cd.title}}<br>
+      </p>
+      {% for track in tracks %}
+      <p>
+        トラック{{track.track_number}}<br>
+        曲名: <input type="text" name="title" value="{{track.song_title}}"><br>
+        アーティスト名: <input type="text" name="title" value="{{track.artist_name}}"><br>
+        <input type="submit" value="トラック{{track.track_number}}を確定">
+      </p>
+      {% endfor %}
+    </form>
+    <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
+      <a href="{{url_for('cds')}}">CD一覧</a><br>
+      <a href="{{url_for('index')}}">TOP</a>
+    </p>
+  </body>
+</html>

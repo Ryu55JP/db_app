@@ -5,20 +5,26 @@
   </head>
   <body>
     <h1>楽曲詳細</h1>
-
     <p>
       タイトル: {{song.title}}<br>
     </p>
-
     <p>
       <a href="{{url_for('song_edit', id=song.id)}}">編集</a><br>
       <a href="{{url_for('song_del', id=song.id)}}">削除</a>
     </p>
+    <hs>収録CD</h2>
+      <ul>
+      {% for cd in cds %}
+        <li>{{cd.title}}<br>
+      {% endfor %}
+      </ul>
+    <h2>披露されたコンサート</h2>
+      <ul>
+      {% for concert in concerts %}
+        <li>{{concert.title}}<br>
+      {% endfor %}
     <p>
-    <!-- ここに楽曲の収録CD一覧、披露されたコンサート一覧を表示する -->
-      
-    </p>
-    <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
       <a href="{{url_for('songs')}}">楽曲一覧</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>

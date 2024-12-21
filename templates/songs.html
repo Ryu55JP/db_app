@@ -12,16 +12,18 @@
         <input type="submit" value="絞り込む"><br>
         （ワイルドカード文字として%が使えます）
       </form>
-      <a href="{{url_for('song_add')}}">楽曲追加</a>
+      <a href="{{url_for('song_add')}}">楽曲追加</a><br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
     </p>
 
     {% for song in songs %}
     <p>
-      <a href="{{ url_for('song', id=song.id) }}">{{ song.title or 'タイトルなし' }}</a>
+      <a href="{{ url_for('song', id=song.id) }}" style="color: black;">{{ song.title or 'タイトルなし' }}</a>
     </p>
     {% endfor %}
 
     <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

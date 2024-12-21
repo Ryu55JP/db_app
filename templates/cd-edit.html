@@ -12,7 +12,7 @@
       <form method="POST"
             action="{{url_for('cd_edit', id=cd.id)}}">
         CDタイトル: <input type="text" name="title" value="{{cd.title}}"><br>
-        品番: <input type="text" name="id" value="{{cd.id}}"><br>
+        品番: {{cd.id}}<br>
         シリーズ: <input type="text" name="series_name"
                        value="{{cd.order_in_series}}"> - <input type="text" name="order_in_series"
                        value="{{cd.order_in_series}}"><br>
@@ -23,6 +23,7 @@
     </p>
 
     <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
       <a href="{{url_for('cds')}}">CD一覧</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>

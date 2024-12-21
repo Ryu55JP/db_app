@@ -1,5 +1,1 @@
-CD      editでトラックも編集できるように
-
-song    CD、コンサート情報載せる
-
-tracks-edit
+* tracks-edit　におけるトラック編集画面の完成

@@ -20,10 +20,11 @@
       {% for song in songs %}
         <li>{{song.title}}&emsp;歌: {{song.artists}}<br>
       {% endfor %}
-      <a href="{{url_for('tracks_edit')}}">トラックを編集</a><br>
+      <a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>
     </ol>
 
     <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
       <a href="{{url_for('cds')}}">CD一覧</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
