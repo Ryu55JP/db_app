@@ -21,6 +21,8 @@ app = Flask(__name__)
 # 処理結果コードとメッセージ
 RESULT_MESSAGES: Final[dict[str, str]] = {
     'include-invalid-charactor':
+    '指定された情報には使えない文字があります - ',
+    'series-number-has-invalid-charactor':
     '指定された情報には使えない文字があります - '
     'シリーズ通し番号は数字のみで指定してください',
     'id-already-exists':
@@ -114,7 +116,7 @@ def has_control_character(s: str) -> bool:
     """
     return any(map(lambda c: unicodedata.category(c) == 'Cc', s))
 
-
+# TOPページ
 @app.route('/')
 def index() -> str:
     """
@@ -132,7 +134,7 @@ def index() -> str:
     # テンプレートへ何も渡さずにレンダリングしたものを返す
     return render_template('index.html')
 
-
+# CD関連ページ
 @app.route('/cds')
 def cds() -> str:
     """
@@ -178,11 +180,11 @@ def cds_filtered() -> str:
 
     # cds テーブルからタイトルで絞り込み、
     # 得られた全行から CD の情報を取り出した一覧を取得
-    cd_list = cur.execute('SELECT * FROM cds WHERE title LIKE ?',
+    cds = cur.execute('SELECT * FROM cds WHERE title LIKE ?',
                           (request.form['title_filter'],)).fetchall()
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
-    return render_template('cds.html', cd_list=cd_list)
+    return render_template('cds.html', cds=cds)
 
 @app.route('/cd/<id>')
 def cd(id: str) -> str:
@@ -299,7 +301,7 @@ def cd_add_execute() -> Response:
       except ValueError:
         # シリーズ通し番号が整数型へ変換できない
         return redirect(url_for('cd_add_results',
-                    code='include-invalid-charactor'))
+                    code='series-number-has-invalid-charactor'))
 
       if has_control_character(order_in_series):
         # シリーズ通し番号に制御文字が含まれる
@@ -587,10 +589,7 @@ def cd_edit_results(code: str) -> str:
     return render_template('cd-edit-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
-if __name__ == '__main__':
-    # このスクリプトを直接実行したらデバッグ用 Web サーバで起動する
-    app.run(debug=True)
-
+# 楽曲関連ページ
 @app.route('/songs')
 def songs() -> str:
     """
@@ -614,7 +613,6 @@ def songs() -> str:
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
     return render_template('songs.html', songs=songs)
 
-
 @app.route('/songs', methods=['POST'])
 def songs_filtered() -> str:
     """
@@ -637,11 +635,10 @@ def songs_filtered() -> str:
 
     # cds テーブルからタイトルで絞り込み、
     # 得られた全行から CD の情報を取り出した一覧を取得
-    song_list = cur.execute('SELECT * FROM cds WHERE title LIKE ?',
-                          (request.form['title_filter'],)).fetchall()
+    songs = cur.execute('SELECT * FROM songs WHERE title LIKE ?', (request.form['title_filter'],)).fetchall()
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
-    return render_template('songs.html', song_list=song_list)
+    return render_template('songs.html', songs=songs)
 
 @app.route('/song/<id>')
 def song(id: str) -> str:
@@ -704,3 +701,6 @@ def song_del() -> str:
     return render_template('songs.html')
 
 
+if __name__ == '__main__':
+    # このスクリプトを直接実行したらデバッグ用 Web サーバで起動する
+    app.run(debug=True)
