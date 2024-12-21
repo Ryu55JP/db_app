@@ -1,0 +1,22 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>楽曲追加</title>
+  </head>
+  <body>
+    <h1>楽曲追加</h1>
+
+    <p>
+      <form method="POST" action="{{url_for('song_add_execute')}}">
+        楽曲ID: <input type="text" name="id"><br>
+        タイトル: <input type="text" name="title"><br>
+        <input type="submit" value="追加">
+      </form>
+    </p>
+
+    <p>
+      <a href="{{url_for('songs')}}">楽曲一覧</a><br>
+      <a href="{{url_for('index')}}">TOP</a>
+    </p>
+  </body>
+</html>

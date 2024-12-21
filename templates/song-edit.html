@@ -1,0 +1,23 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>楽曲情報編集</title>
+  </head>
+  <body>
+    <h1>楽曲情報編集</h1>
+
+    <p>
+      <form method="POST"
+            action="{{url_for('song_edit', id=song.id)}}">
+        ID: <input type="text" name="id" value="{{song.id}}"><br>
+        タイトル: <input type="text" name="title" value="{{song.title}}"><br>
+        <input type="submit" value="決定">
+      </form>
+    </p>
+
+    <p>
+      <a href="{{url_for('songs')}}">楽曲一覧</a><br>
+      <a href="{{url_for('index')}}">TOP</a>
+    </p>
+  </body>
+</html>

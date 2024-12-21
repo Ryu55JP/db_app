@@ -25,9 +25,12 @@ RESULT_MESSAGES: Final[dict[str, str]] = {
     'series-number-has-invalid-charactor':
     '指定された情報には使えない文字があります - '
     'シリーズ通し番号は数字のみで指定してください',
+    'id-has-invalid-charactor':
+    '指定された情報には使えない文字があります - '
+    'IDは数字のみで指定してください',
     'id-already-exists':
-    '指定された社員番号は既に存在します - '
-    '存在しない社員番号を指定してください',
+    '指定されたIDのデータは既に存在します - '
+    '存在しないIDを指定してください',
     'id-does-not-exist':
     '指定された社員番号は存在しません',
     'id-is-manager':
@@ -54,6 +57,8 @@ RESULT_MESSAGES: Final[dict[str, str]] = {
     'データベースエラー',
     'cd-added':
     'CDを追加しました',
+    'song-added':
+    '楽曲を追加しました',
     'deleted':
     '削除しました',
     'updated':
@@ -527,9 +532,6 @@ def cd_edit_update(id: str) -> Response:
                                 code='id-does-not-exist'))
 
     # リクエストされた POST パラメータの内容を取り出す
-
-    title = request.form.get('title', '')
-
     title = request.form['title']
     series_name = request.form['series_name']
     order_in_series_str = request.form['order_in_series']
@@ -550,16 +552,13 @@ def cd_edit_update(id: str) -> Response:
       # cds テーブルの指定された行のパラメータを更新
       if order_in_series_str:
         cur.execute('UPDATE cds '
-                    'SET title = ?, series_name = ?, order_in_series = ?, '
+                    'SET id = ?, '
+                    'title = ?, '
+                    'series_name = ?, '
+                    'order_in_series = ?, '
                     'issued_date = ? '
                     'WHERE id = ?',
-                    (title, series_name, order_in_series, issued_date, id))
-      else:
-        cur.execute('UPDATE cds '
-                    'SET title = ?, series_name = ?,'
-                    'issued_date = ? '
-                    'WHERE id = ?',
-                    (title, series_name, issued_date, id))
+                    (id, title, series_name, order_in_series, issued_date, id))
     except sqlite3.Error:
         # データベースエラーが発生
         return redirect(url_for('employee_edit_results',
@@ -663,14 +662,14 @@ def song(id: str) -> str:
     con = get_db()
     cur = con.cursor()
 
-    # cds テーブルから指定された CD ID の行を 1 行だけ取り出す
-    cd = cur.execute('SELECT * FROM songs WHERE id = ?', (id,)).fetchone()
+    # songs テーブルから指定された song_id の行を 1 行だけ取り出す
+    song = cur.execute('SELECT * FROM songs WHERE id = ?', (id,)).fetchone()
 
-    if cd is None:
-        # 指定された CD ID の行が無かった
+    if song is None:
+        # 指定された song_id の行が無かった
         return render_template('song-not-found.html')
 
-    # CD の情報をテンプレートへ渡してレンダリングしたものを返す
+    # 楽曲の情報をテンプレートへ渡してレンダリングしたものを返す
     return render_template('song.html', song=song)
 
 @app.route('/song-add')
@@ -689,17 +688,182 @@ def song_add() -> str:
       str: ページのコンテンツ
     """
     # テンプレートへ何も渡さずにレンダリングしたものを返す
-    return render_template('songs.html')
+    return render_template('song-add.html')
 
+@app.route('/song-add', methods=['POST'])
+def song_add_execute() -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
 
-@app.route('/song_edit')
-def song_edit() -> str:
-    return render_template('songs.html')
+    # リクエストされた POST パラメータの内容を取り出す
+    id_str = request.form['id']
+    title = request.form['title']
 
-@app.route('/song_del')
+    try:
+    # 文字列型で渡されたIDを整数型へ変換する
+        id = int(id_str)
+    except ValueError:
+    # シリーズ通し番号が整数型へ変換できない
+        return redirect(url_for('song_add_results',
+                code='id-has-invalid-charactor'))
+
+    song = cur.execute('SELECT id FROM songs WHERE id = ?',\
+                           (id,)).fetchone()
+    if song is not None:
+        # 指定されたIDの行が既に存在
+        return redirect(url_for('song_add_results',
+                                code='id-already-exists'))
+    # タイトルチェック
+    if has_control_character(title):
+        # タイトルに制御文字が含まれる
+        return redirect(url_for('song_add_results',
+                                code='include-control-charactor'))
+
+    # データベースへ楽曲を追加
+    try:
+        # cds テーブルに指定されたパラメータの行を挿入
+        cur.execute('INSERT INTO songs '
+                    '(id, title'
+                    'VALUES (?, ?)',
+                    (id, title))
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('song_add_results',
+                                code='database-error'))
+    # コミット（データベース更新処理を確定）
+    con.commit()
+
+    # 楽曲追加完了
+    return redirect(url_for('song_add_results',
+                            code='song-added'))
+
+@app.route('song-add-results/<code>')
+def song_add_results(code: str) -> str:
+    """
+    CD 追加結果ページ.
+
+    `http://localhost:5000/cd-add-result/<code>`
+    への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
+
+    PRG パターンで CD 追加実行の POST 後にリダイレクトされてくる。
+    テンプレート cd-add-results.html
+    へ処理結果コード code に基づいたメッセージを渡してレンダリングして返す。
+
+    Returns:
+      str: ページのコンテンツ
+    """
+    return render_template('song-add-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
+@app.route('/song-del/<id>')
 def song_del() -> str:
-    return render_template('songs.html')
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
 
+    try:
+        # 楽曲IDの存在チェックをする：
+        # songs テーブルで同じ楽曲IDの行を 1 行だけ取り出す
+        song = cur.execute('SELECT id FROM songs WHERE id = ?',
+                         (id,)).fetchone()
+    except song is None:
+        # 指定されたCD番号の行が無い
+        return render_template('song-del-results.html',
+                               results='指定された楽曲は存在しません')
+
+    return render_template('song-del.html', id=id)
+
+@app.route('/song-del/<id>', methods=['POST'])
+def song_del_execute(id: str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    try:
+        # 楽曲IDの存在チェックをする：
+        # songs テーブルで同じ楽曲IDの行を 1 行だけ取り出す
+        song = cur.execute('SELECT id FROM songs WHERE id = ?',
+                         (id,)).fetchone()
+    except song is None:
+        # 指定された楽曲IDの行が無い
+        return redirect(url_for('song_del_results',
+                                code='id-does-not-exist'))
+    con.commit()
+
+    # 楽曲削除完了
+    return redirect(url_for('song_del_results',
+                            code='deleted'))
+
+@app.route('/song-del-results/<code>')
+def song_del_results(code: str) -> str:
+    return render_template('song-del-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
+@app.route('song-edit/<id>')
+def song_edit(id: str) -> str:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    song = cur.execute('SELECT * FROM songs WHERE id = ?',
+                        (id,)).fetchone()
+
+    return render_template('song-edit.html', song=song)
+
+@app.route('song-edit/<id>', methods=['POST'])
+def song_edit_update(id: str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    # 楽曲IDの存在チェックをする：
+    # songs テーブルで同じ楽曲IDの行を 1 行だけ取り出す
+    song = cur.execute('SELECT id FROM songs WHERE id = ?',
+                         (id,)).fetchone()
+    if song is None:
+        # 指定された楽曲IDの行が無い
+        return redirect(url_for('song_edit_results',
+                                code='id-does-not-exist'))
+
+    # リクエストされた POST パラメータの内容を取り出す
+    id_str = request.form['id']
+    title = request.form['title']
+
+    if id_str:
+      try:
+        # 文字列型で渡された CD ID を整数型へ変換する
+        id = int(id_str)
+      except ValueError:
+        # CD ID が整数型へ変換できない
+        return render_template('song-edit-results.html',
+                    results='IDは数値で指定してください')
+
+    # タイトルチェック
+    if has_control_character(title):
+        # タイトルに制御文字が含まれる
+        return redirect(url_for('song_edit_results',
+                                code='include-control-charactor'))
+
+    # データベースを更新
+    try:
+        # cds テーブルの指定された行のパラメータを更新
+        cur.execute('UPDATE songs '
+                    'SET title = ? '
+                    'WHERE id = ?',
+                    (title, id))
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('song_edit_results',
+                                code='database-error'))
+    # コミット（データベース更新処理を確定）
+    con.commit()
+
+    # 楽曲編集完了
+    return redirect(url_for('song_edit_results',
+                            code='updated'))
+
+@app.route('/song-edit-results/<code>')
 
 if __name__ == '__main__':
     # このスクリプトを直接実行したらデバッグ用 Web サーバで起動する
