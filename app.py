@@ -208,14 +208,26 @@ def cd(id: str) -> str:
     cur = con.cursor()
 
     # cds テーブルから指定された CD ID の行を 1 行だけ取り出す
-    cd = cur.execute('SELECT * FROM cds WHERE id = ?', (id,)).fetchone()
+    cd = cur.execute('''
+      SELECT * FROM cds WHERE id = ?
+      ''',(id,)).fetchone()
+    songs = cur.execute('''
+      SELECT t.track_number, s.title, GROUP_CONCAT(a.name, ', ') AS artists
+        FROM tracks t
+          JOIN songs s ON s.id = t.song_id
+          JOIN tracks_artists ta ON ta.cd_id = t.cd_id AND ta.track_number = t.track_number
+          JOIN artists a ON a.id = ta.artist_id
+        WHERE t.cd_id = ?
+        GROUP BY t.track_number, s.title
+        ORDER BY t.track_number
+      ''', (id, )).fetchall()
 
     if cd is None:
         # 指定された CD ID の行が無かった
         return render_template('cd-not-found.html')
 
     # CD の情報をテンプレートへ渡してレンダリングしたものを返す
-    return render_template('cd.html', cd=cd)
+    return render_template('cd.html', cd=cd, songs=songs)
 
 @app.route('/cd-add')
 def cd_add() -> str:

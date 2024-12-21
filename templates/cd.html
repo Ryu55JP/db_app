@@ -11,13 +11,16 @@
       品番: {{cd.id}}<br>
       シリーズ: {{cd.series_name}} - {{cd.order_in_series}}<br>
       発売日: {{cd.issued_date}}<br>
-      <!-- ここに曲一覧を表示する -->
-    </p>
-
     <p>
       <a href="{{url_for('cd_edit', id=cd.id)}}">編集</a><br>
       <a href="{{url_for('cd_del', id=cd.id)}}">削除</a>
     </p>
+    <h2>収録曲</h2><!-- ここに曲一覧を表示する -->
+      <ol>
+      {% for song in songs %}
+        <li>{{song.title}}&emsp;歌: {{song.artists}}<br>
+      {% endfor %}
+    </ol>
 
     <p>
       <a href="{{url_for('cds')}}">CD一覧</a><br>
