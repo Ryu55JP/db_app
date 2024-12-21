@@ -5,7 +5,9 @@
   </head>
   <body>
     <h1>CD情報編集</h1>
-
+    <p>
+      CDに収録されている楽曲は登録済である必要があります。
+    </p>
     <p>
       <form method="POST"
             action="{{url_for('cd_edit', id=cd.id)}}">
