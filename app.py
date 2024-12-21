@@ -865,6 +865,19 @@ def song_edit_update(id: str) -> Response:
 
 @app.route('/song-edit-results/<code>')
 
+
+
+
+
+@app.route('/tracks-add')
+def tracks_add() -> str:
+    return render_template('index.html')
+
+@app.route('/tracks-edit')
+def tracks_edit() -> str:
+    return render_template('index.html')
+
+
 if __name__ == '__main__':
     # このスクリプトを直接実行したらデバッグ用 Web サーバで起動する
     app.run(debug=True)

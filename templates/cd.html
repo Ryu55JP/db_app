@@ -20,6 +20,7 @@
       {% for song in songs %}
         <li>{{song.title}}&emsp;歌: {{song.artists}}<br>
       {% endfor %}
+      <a href="{{url_for('tracks_edit')}}">トラックを編集</a><br>
     </ol>
 
     <p>
