@@ -878,16 +878,15 @@ def tracks_edit(id: str) -> str:
     cd = cur.execute('SELECT title FROM cds WHERE id = ?', (id,)).fetchone()
 
     # トラック情報を取得
-    tracks = cur.execute('''
-        SELECT t.track_number, s.title AS song_title, GROUP_CONCAT(a.name, ', ') AS artist_name
-        FROM tracks t
-        JOIN songs s ON s.id = t.song_id
-        JOIN tracks_artists ta ON ta.cd_id = t.cd_id AND ta.track_number = t.track_number
-        JOIN artists a ON a.id = ta.artist_id
-        WHERE t.cd_id = ?
-        GROUP BY t.track_number, s.title
-        ORDER BY t.track_number
-    ''', (id,)).fetchall()
+    tracks = cur.execute(
+        'SELECT t.track_number, s.title AS song_title, a.name AS artist_name '
+        'FROM tracks t '
+        'JOIN songs s ON s.id = t.song_id '
+        'JOIN tracks_artists ta ON ta.cd_id = t.cd_id AND ta.track_number = t.track_number '
+        'JOIN artists a ON a.id = ta.artist_id '
+        'WHERE t.cd_id = ? '
+        'ORDER BY t.track_number '
+    , (id,)).fetchall()
 
     # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
     return render_template('tracks-edit.html', cd=cd, tracks=tracks)

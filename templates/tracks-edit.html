@@ -17,11 +17,11 @@
       {% for track in tracks %}
       <p>
         トラック{{track.track_number}}<br>
-        曲名: <input type="text" name="title" value="{{track.song_title}}"><br>
-        アーティスト名: <input type="text" name="title" value="{{track.artist_name}}"><br>
-        <input type="submit" value="トラック{{track.track_number}}を確定">
+        曲名: <input type="text" name="song_title_{{track.track_number}}" value="{{track.song_title or ''}}"><br>
+        アーティスト名: <input type="text" name="artist_name_{{track.track_number}}" value="{{track.artist_name or ''}}"><br>
       </p>
       {% endfor %}
+      <input type="submit" value="確定">
     </form>
     <p>
       <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
