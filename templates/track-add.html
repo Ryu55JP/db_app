@@ -1,0 +1,26 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>トラック追加</title>
+  </head>
+  <body>
+    <h1>トラック追加</h1>
+
+    <p>
+      <form method="POST" action="{{url_for('track_add_execute')}}">
+        CDタイトル: <input type="text" name="title" value="{{cd.title}}"><br>
+        トラック番号: <input type="text" name="track_number"><br>
+        曲名: <input type="text" name="song_title"><br>
+        アーティスト名: <input type="text" name="artist_name"><br>
+        <input type="submit" value="追加">
+      </form>
+      <a href="{{ url_for('cd', id=cd.id) }}">CD詳細に戻る</a>
+    </p>
+
+    <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
+      <a href="{{url_for('cds')}}">CD一覧</a><br>
+      <a href="{{url_for('index')}}">TOP</a>
+    </p>
+  </body>
+</html>
