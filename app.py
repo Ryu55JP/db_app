@@ -594,7 +594,7 @@ def cd_edit_results(code: str) -> str:
     return render_template('cd-edit-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
-# 楽曲関連ページ
+# 楽曲関連
 @app.route('/songs')
 def songs() -> str:
     """
@@ -874,7 +874,8 @@ def song_edit_update(id: str) -> Response:
     return redirect(url_for('song_edit_results',
                             code='updated'))
 
-# トラック関連
+# 未完成です
+# トラック
 @app.route('/track-add/<id>')
 def track_add(id: str) -> str:
     con = get_db()
@@ -884,7 +885,6 @@ def track_add(id: str) -> str:
     cd = cur.execute('SELECT title FROM cds WHERE id = ?', (id,)).fetchone()
 
     return render_template('track-add.html', cd=cd)
-
 
 @app.route('/tracks-edit/<id>')
 def tracks_edit(id: str) -> str:
@@ -1019,6 +1019,40 @@ def tracks_edit_results(code: str) -> str:
     return render_template('tracks-edit-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
+# アーティスト
+@app.route('/artists')
+def artists() -> str:
+
+
+    cur = get_db().cursor()
+
+    artists = cur.execute('SELECT * FROM artists').fetchall()
+
+    return render_template('artists.html', artists=artists)
+
+@app.route('/artists', methods=['POST'])
+def artists_filtered() -> str:
+    cur = get_db().cursor()
+
+    artists = cur.execute('SELECT * FROM artists WHERE name LIKE ?', (request.form['name_filter'],)).fetchall()
+
+    return render_template('artists.html', artists=artists)
+
+
+@app.route('/artist/<id>')
+def artist(id: str) -> str:
+    con = get_db()
+    cur = con.cursor()
+
+    # cds テーブルから指定された CD ID の行を 1 行だけ取り出す
+    artist = cur.execute('''
+      SELECT * FROM artists WHERE id = ?
+      ''',(id,)).fetchone()
+    if cd is None:
+        # 指定された アーティストID の行が無かった
+        return render_template('index.html')
+
+    return render_template('artist.html', artist=artist)
 
 if __name__ == '__main__':
     # このスクリプトを直接実行したらデバッグ用 Web サーバで起動する
