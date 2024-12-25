@@ -1,0 +1,22 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>Cアーティスト削除</title>
+  </head>
+  <body>
+    <h1>アーティスト削除</h1>
+
+    <p>
+      本当にこのアーティストを削除しますか？<br>
+      <form method="POST" action="{{url_for('artist_del_execute', id=id)}}">
+        <input type="submit" value="削除実行">
+      </form>
+    </p>
+
+    <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('artists')}}">アーティスト一覧</a><br>
+      <a href="{{url_for('index')}}">TOP</a>
+    </p>
+  </body>
+</html>

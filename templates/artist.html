@@ -10,20 +10,12 @@
       アーティスト名: {{artist.name}}<br>
       グループ名: {{artist.group_name}}<br>
     <p>
-    {#  <a href="{{url_for('cd_edit', id=cd.id)}}">編集</a><br>
-      <a href="{{url_for('cd_del', id=cd.id)}}">削除</a>
+      {#<a href="{{url_for('artist_edit', id=artist.id)}}">編集</a><br>#}
+      <a href="{{url_for('artist_del', id=artist.id)}}">削除</a>
     </p>
-    <h2>収録曲</h2><!-- ここに曲一覧を表示する -->
-      <ol>
-      {% for artist in artists %}
-        <li>{{song.title}}&emsp;歌: {{song.artists}}<br>
-      {% endfor %}
-      <a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>
-    </ol>
-    #}
     <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('cds')}}">CD一覧</a><br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('artists')}}">アーティスト一覧</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

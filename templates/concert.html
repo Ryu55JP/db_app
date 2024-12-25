@@ -1,0 +1,30 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>{{concert.title}}</title>
+  </head>
+  <body>
+    <h1>コンサート詳細</h1>
+
+    <p>
+      タイトル: {{concert.title}}<br>
+      開催日: {{concert.held_date}}<br>
+    <p>
+{#      <a href="{{url_for('concert_edit', id=concert.id)}}">編集</a><br>#}
+      <a href="{{url_for('concert_del', id=concert.id)}}">削除</a>
+    </p>
+{#    <h2>収録曲</h2>
+      <ol>
+      {% for song in songs %}
+        <li>{{song.title}}&emsp;歌: {{song.artists}}<br>
+      {% endfor %}
+      <a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>
+    </ol>
+#}
+    <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
+      <a href="{{url_for('concerts')}}">コンサート一覧</a><br>
+      <a href="{{url_for('index')}}">TOP</a>
+    </p>
+  </body>
+</html>

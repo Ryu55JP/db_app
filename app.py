@@ -63,6 +63,10 @@ RESULT_MESSAGES: Final[dict[str, str]] = {
     'CDを追加しました',
     'song-added':
     '楽曲を追加しました',
+    'artist-added':
+    'アーティストを追加しました', 
+    'concert-added':
+    'コンサートを追加しました', 
     'deleted':
     '削除しました',
     'updated':
@@ -313,11 +317,6 @@ def cd_add_execute() -> Response:
         # シリーズ通し番号が整数型へ変換できない
         return redirect(url_for('cd_add_results',
                     code='series-number-has-invalid-charactor'))
-
-      if has_control_character(order_in_series):
-        # シリーズ通し番号に制御文字が含まれる
-        return redirect(url_for('cd_add_results',
-                    code='include-control-charactor'))
 
     # issued_date取得、チェック
     issued_date = request.form['issued_date']
@@ -745,7 +744,7 @@ def song_add_execute() -> Response:
     try:
         # cds テーブルに指定されたパラメータの行を挿入
         cur.execute('INSERT INTO songs '
-                    '(id, title'
+                    '(id, title) '
                     'VALUES (?, ?)',
                     (id, title))
     except sqlite3.Error:
@@ -778,10 +777,12 @@ def song_add_results(code: str) -> str:
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
 @app.route('/song-del/<id>')
-def song_del() -> str:
+def song_del(id: str) -> str:
     # データベース接続してカーソルを得る
     con = get_db()
     cur = con.cursor()
+
+    id = int(id)
 
     try:
         # 楽曲IDの存在チェックをする：
@@ -810,6 +811,16 @@ def song_del_execute(id: str) -> Response:
         # 指定された楽曲IDの行が無い
         return redirect(url_for('song_del_results',
                                 code='id-does-not-exist'))
+
+    try:
+        # cds テーブルの指定された行を削除
+        cur.execute('DELETE FROM songs WHERE id = ?', (id,))
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('song_del_results',
+                                code='database-error'))
+
+
     con.commit()
 
     # 楽曲削除完了
@@ -1053,6 +1064,303 @@ def artist(id: str) -> str:
         return render_template('index.html')
 
     return render_template('artist.html', artist=artist)
+
+@app.route('/artist-add')
+def artist_add() -> str:
+    return render_template('artist-add.html')
+
+@app.route('/artist-add', methods=['POST'])
+def artist_add_execute() -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    # id取得、チェック
+    id = request.form['id']
+    if id:
+      try:
+        # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
+        id = int(id)
+      except ValueError:
+        # シリーズ通し番号が整数型へ変換できない
+        return redirect(url_for('artist_add_results',
+                    code='id-has-invalid-charactor'))
+
+    # アーティスト名取得、チェック
+    name = request.form['name']
+    if has_control_character(name):
+        # アーティスト名に制御文字が含まれる
+        return redirect(url_for('artist_add_results',
+                                code='include-control-charactor'))
+
+    # issued_date取得、チェック
+    group_name = request.form['group_name']
+    if has_control_character(group_name):
+        # タイトルに制御文字が含まれる
+        return redirect(url_for('cd_add_results',
+                                code='include-control-charactor'))
+
+    # データベースへアーティストを追加
+    try:
+        # cds テーブルに指定されたパラメータの行を挿入
+        cur.execute('INSERT INTO artists '
+                    '(id, name, group_name) '
+                    'VALUES (?, ?, ?)',
+                    (id, name, group_name))
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('artist_add_results',
+                                code='database-error'))
+    # コミット（データベース更新処理を確定）
+    con.commit()
+
+    # CD追加完了
+    return redirect(url_for('artist_add_results',
+                            code='artist-added'))
+
+@app.route('/artist-add-results/<code>')
+def artist_add_results(code: str) -> str:
+    return render_template('artist-add-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
+@app.route('/artist-del/<id>')
+def artist_del(id: str) -> str:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    try:
+        # CD番号の存在チェックをする：
+        # cds テーブルで同じCD番号の行を 1 行だけ取り出す
+        artist = cur.execute('SELECT id FROM artists WHERE id = ?',
+                         (id,)).fetchone()
+    except artist is None:
+        # 指定されたCD番号の行が無い
+        return render_template('artist-del-results.html',
+                               results='指定されたアーティストは存在しません')
+
+    return render_template('artist-del.html', id=id)
+
+@app.route('/artist-del/<id>', methods=['POST'])
+def artist_del_execute(id: str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+
+    try:
+        # CD番号の存在チェックをする：
+        # cds テーブルで同じCD番号の行を 1 行だけ取り出す
+        artist = cur.execute('SELECT id FROM artists WHERE id = ?',
+                         (id,)).fetchone()
+    except artist is None:
+        # 指定されたCD番号の行が無い
+        return redirect(url_for('artist_del_results',
+                                code='id-does-not-exist'))
+
+
+    try:
+        # cds テーブルの指定された行を削除
+        cur.execute('DELETE FROM artists WHERE id = ?', (id,))
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('artist_add_results',
+                                code='database-error'))
+    con.commit()
+
+    # CD削除完了
+    return redirect(url_for('artist_del_results',
+                            code='deleted'))
+
+@app.route('/artist-del-results/<code>')
+def artist_del_results(code: str) -> str:
+    """
+    CD削除結果ページ.
+
+    `http://localhost:5000/cd-del-result/<code>`
+    への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
+
+    PRG パターンでCD削除実行の POST 後にリダイレクトされてくる。
+    テンプレート cd-del-results.html
+    へ処理結果コード code に基づいたメッセージを渡してレンダリングして返す。
+
+    Returns:
+      str: ページのコンテンツ
+    """
+    return render_template('artist-del-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
+
+
+
+
+# コンサート
+@app.route('/concerts')
+def concerts() -> str:
+    # データベース接続してカーソルを得る
+    cur = get_db().cursor()
+
+    # cds テーブルの全行から CD の情報を取り出した一覧を取得
+    concerts = cur.execute('SELECT * FROM concerts ORDER BY held_date').fetchall()
+
+    # 一覧をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('concerts.html', concerts=concerts)
+
+@app.route('/concerts', methods=['POST'])
+def concerts_filtered() -> str:
+    # データベース接続してカーソルを得る
+    cur = get_db().cursor()
+
+    # cds テーブルからタイトルで絞り込み、
+    # 得られた全行から CD の情報を取り出した一覧を取得
+    concerts = cur.execute('SELECT * FROM concerts WHERE title LIKE ? ORDER BY held_date', (request.form['title_filter'],)).fetchall()
+
+    # 一覧をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('concerts.html', concerts=concerts)
+
+@app.route('/concert/<id>')
+def concert(id: str) -> str:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    # songs テーブルから指定された song_id の行を 1 行だけ取り出す
+    concert = cur.execute('SELECT * FROM concerts WHERE id = ?', (id,)).fetchone()
+
+    if concert is None:
+        # 指定された song_id の行が無かった
+        return render_template('concert-not-found.html')
+
+    # 楽曲の情報をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('concert.html', concert=concert)
+
+@app.route('/concert-add')
+def concert_add() -> str:
+    # テンプレートへ何も渡さずにレンダリングしたものを返す
+    return render_template('concert-add.html')
+
+@app.route('/concert-add', methods=['POST'])
+def concert_add_execute() -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    # リクエストされた POST パラメータの内容を取り出す
+    id_str = request.form['id']
+    title = request.form['title']
+    held_date = request.form['held-date']
+
+    try:
+    # 文字列型で渡されたIDを整数型へ変換する
+        id = int(id_str)
+    except ValueError:
+    # シリーズ通し番号が整数型へ変換できない
+        return redirect(url_for('concert_add_results',
+                code='id-has-invalid-charactor'))
+
+    concert = cur.execute('SELECT id FROM concerts WHERE id = ?',\
+                           (id,)).fetchone()
+
+    if concert is not None:
+        # 指定されたIDの行が既に存在
+        return redirect(url_for('concert_add_results',
+                                code='id-already-exists'))
+    # タイトルチェック
+    if has_control_character(title):
+        # タイトルに制御文字が含まれる
+        return redirect(url_for('concert_add_results',
+                                code='include-control-charactor'))
+
+    # 開催日チェック
+    if has_control_character(held_date):
+        # タイトルに制御文字が含まれる
+        return redirect(url_for('concert_add_results',
+                                code='include-control-charactor'))
+
+    # データベースへ楽曲を追加
+    try:
+        # cds テーブルに指定されたパラメータの行を挿入
+        cur.execute('INSERT INTO concerts '
+                    '(id, title, held_date) '
+                    'VALUES (?, ?, ?)',
+                    (id, title, held_date))
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('concert_add_results',
+                                code='database-error'))
+    # コミット（データベース更新処理を確定）
+    con.commit()
+
+    # 楽曲追加完了
+    return redirect(url_for('concert_add_results',
+                            code='concert-added'))
+
+@app.route('/concert-add-results/<code>')
+def concert_add_results(code: str) -> str:
+
+    return render_template('concert-add-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
+@app.route('/concert-del/<id>')
+def concert_del(id: str) -> str:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    id = int(id)
+
+    try:
+        # 楽曲IDの存在チェックをする：
+        # songs テーブルで同じ楽曲IDの行を 1 行だけ取り出す
+        concert = cur.execute('SELECT id FROM concerts WHERE id = ?',
+                         (id,)).fetchone()
+    except concert is None:
+        # 指定されたCD番号の行が無い
+        return render_template('concert-del-results.html',
+                               results='指定されたコンサートは存在しません')
+
+    return render_template('concert-del.html', id=id)
+
+
+@app.route('/concert-del/<id>', methods=['POST'])
+def concert_del_execute(id: str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    id = int(id)
+
+    try:
+        # 楽曲IDの存在チェックをする：
+        # songs テーブルで同じ楽曲IDの行を 1 行だけ取り出す
+        concert = cur.execute('SELECT id FROM concerts WHERE id = ?',
+                         (id,)).fetchone()
+    except concert is None:
+        # 指定された楽曲IDの行が無い
+        return redirect(url_for('concert_del_results',
+                                code='id-does-not-exist'))
+
+    try:
+        # cds テーブルの指定された行を削除
+        cur.execute('DELETE FROM concerts WHERE id = ?', (id,))
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('concert_del_results',
+                                code='database-error'))
+
+    con.commit()
+
+    # 楽曲削除完了
+    return redirect(url_for('concert_del_results',
+                            code='deleted'))
+
+
+@app.route('/concert-del-results/<code>')
+def concert_del_results(code: str) -> str:
+    return render_template('concert-del-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
+
 
 if __name__ == '__main__':
     # このスクリプトを直接実行したらデバッグ用 Web サーバで起動する

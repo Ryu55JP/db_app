@@ -1,0 +1,24 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>アーティスト追加</title>
+  </head>
+  <body>
+    <h1>アーティスト追加</h1>
+
+    <p>
+      <form method="POST" action="{{url_for('artist_add_execute')}}">
+        アーティストID: <input type="text" name="id"><br>
+        アーティスト名: <input type="text" name="name"><br>
+        グループ名: <input type="text" name="group_name"><br>
+        <input type="submit" value="追加">
+      </form>
+    </p>
+
+    <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('artists')}}">アーティスト一覧</a><br>
+      <a href="{{url_for('index')}}">TOP</a>
+    </p>
+  </body>
+</html>
