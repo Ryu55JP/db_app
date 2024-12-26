@@ -541,6 +541,21 @@ def cd_edit_update(id: str) -> Response:
     order_in_series_str = request.form['order_in_series']
     issued_date = request.form['issued_date']
 
+    if has_control_character(title):
+            # タイトルに制御文字が含まれる
+            return redirect(url_for('song_edit_results',
+                                    code='include-control-charactor'))
+
+    if has_control_character(series_name):
+            # タイトルに制御文字が含まれる
+            return redirect(url_for('song_edit_results',
+                                    code='include-control-charactor'))
+
+    if has_control_character(issued_date):
+            # タイトルに制御文字が含まれる
+            return redirect(url_for('song_edit_results',
+                                    code='include-control-charactor'))
+
     if order_in_series_str:
       try:
         # 文字列型で渡された CD ID を整数型へ変換する
@@ -554,10 +569,8 @@ def cd_edit_update(id: str) -> Response:
     # データベースを更新
     try:
       # cds テーブルの指定された行のパラメータを更新
-      if order_in_series_str:
         cur.execute('UPDATE cds '
-                    'SET id = ?, '
-                    'title = ?, '
+                    'SET title = ?, '
                     'series_name = ?, '
                     'order_in_series = ?, '
                     'issued_date = ? '
@@ -565,7 +578,7 @@ def cd_edit_update(id: str) -> Response:
                     (id, title, series_name, order_in_series, issued_date, id))
     except sqlite3.Error:
         # データベースエラーが発生
-        return redirect(url_for('employee_edit_results',
+        return redirect(url_for('cd_edit_results',
                                 code='database-error'))
     # コミット（データベース更新処理を確定）
     con.commit()
@@ -883,6 +896,12 @@ def song_edit_update(id: str) -> Response:
     # 楽曲編集完了
     return redirect(url_for('song_edit_results',
                             code='updated'))
+
+@app.route('/song-edit-results/<code>')
+def song_edit_results(code: str) -> str:
+    return render_template('song-edit-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
 
 # 未完成です
 # トラック
@@ -1208,6 +1227,70 @@ def artist_del_results(code: str) -> str:
     return render_template('artist-del-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
+@app.route('/artist-edit/<id>')
+def artist_edit(id: str) -> str:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    cd = cur.execute('SELECT * FROM artists WHERE id = ?',
+                        (id,)).fetchone()
+
+    # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('artist-edit.html', artist=artist)
+
+@app.route('/artist-edit/<id>', methods=['POST'])
+def artist_edit_update(id: str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+
+    # CD ID の存在チェックをする：
+    # cds テーブルで同じ CD ID の行を 1 行だけ取り出す
+    artist = cur.execute('SELECT id FROM artists WHERE id = ?',
+                           (id,)).fetchone()
+    if artist is None:
+        # 指定された CD ID の行が無い
+        return redirect(url_for('artist_edit_results',
+                                code='id-does-not-exist'))
+
+    # リクエストされた POST パラメータの内容を取り出す
+    name = request.form['name']
+    group_name = request.form['group_name']
+
+    if has_control_character(name):
+            # タイトルに制御文字が含まれる
+            return redirect(url_for('song_edit_results',
+                                    code='include-control-charactor'))
+
+    if has_control_character(group_name):
+            # タイトルに制御文字が含まれる
+            return redirect(url_for('song_edit_results',
+                                    code='include-control-charactor'))
+
+    # データベースを更新
+    try:
+        cur.execute('UPDATE artists '
+                    'SET name = ?, '
+                    'group_name = ?, '
+                    'WHERE id = ?',
+                    (name, group_name, id))
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('artist_edit_results',
+                                code='database-error'))
+    # コミット（データベース更新処理を確定）
+    con.commit()
+
+    # アーティスト編集完了
+    return redirect(url_for('artist_edit_results',
+                            code='updated'))
+
+@app.route('/artist-edit-results/<code>')
+def artist_edit_results(code: str) -> str:
+    return render_template('artist-edit-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
 
 
 

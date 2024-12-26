@@ -10,7 +10,7 @@
       アーティスト名: {{artist.name}}<br>
       グループ名: {{artist.group_name}}<br>
     <p>
-      {#<a href="{{url_for('artist_edit', id=artist.id)}}">編集</a><br>#}
+      <a href="{{url_for('artist_edit', id=artist.id)}}">編集</a><br>
       <a href="{{url_for('artist_del', id=artist.id)}}">削除</a>
     </p>
     <h2>参加CD</h2>
