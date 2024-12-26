@@ -9,7 +9,7 @@
     Done: 表示、追加、削除は実装済み
     Done: 一覧では所属グループがあれば書く
     Done: 詳細ページでは参加したCDと参加したコンサートを表示
-    ！編集機能の追加
+    ！編集機能の不具合（resultsにリダイレクトされない）
 
     artist_edit_update
         return redirect(url_for('artist_edit_results',

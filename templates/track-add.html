@@ -8,7 +8,7 @@
 
     <p>
       <form method="POST" action="{{url_for('track_add_execute')}}">
-        CDタイトル: <input type="text" name="title" value="{{cd.title}}"><br>
+        CDタイトル: {{cd.title}}<br>
         トラック番号: <input type="text" name="track_number"><br>
         曲名: <input type="text" name="song_title"><br>
         アーティスト名: <input type="text" name="artist_name"><br>
