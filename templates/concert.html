@@ -13,14 +13,14 @@
 {#      <a href="{{url_for('concert_edit', id=concert.id)}}">編集</a><br>#}
       <a href="{{url_for('concert_del', id=concert.id)}}">削除</a>
     </p>
-{#    <h2>収録曲</h2>
+    <h2>セットリスト</h2>
       <ol>
-      {% for song in songs %}
-        <li>{{song.title}}&emsp;歌: {{song.artists}}<br>
+      {% for performance in performances %}
+        <li>{{performance.song_title}}&emsp;歌: {{performance.artists}}<br>
       {% endfor %}
-      <a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>
+      {#<a href="{{url_for('tracks_edit', id=cd.id)}}">編集</a><br>#}
     </ol>
-#}
+
     <p>
       <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
       <a href="{{url_for('concerts')}}">コンサート一覧</a><br>

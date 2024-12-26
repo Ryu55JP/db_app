@@ -2,7 +2,6 @@
 """
 データベースを使った Web アプリケーションのサンプル.
 
-細田 真道
 """
 
 import sqlite3
@@ -1059,11 +1058,30 @@ def artist(id: str) -> str:
     artist = cur.execute('''
       SELECT * FROM artists WHERE id = ?
       ''',(id,)).fetchone()
-    if cd is None:
+    if artist is None:
         # 指定された アーティストID の行が無かった
         return render_template('index.html')
 
-    return render_template('artist.html', artist=artist)
+    cds = cur.execute(
+                    'SELECT DISTINCT c.title AS cd_title, c.id AS cd_id '
+                    'FROM cds c '
+                    'JOIN tracks t ON t.cd_id = c.id '
+                    'JOIN tracks_artists ta ON ta.cd_id = t.cd_id AND ta.track_number = t.track_number '
+                    'JOIN artists a ON a.id = ta.artist_id '
+                    'WHERE a.id = ? '
+    , (id, )).fetchall()
+
+    concerts = cur.execute(
+                    'SELECT DISTINCT c.title AS concert_title, c.id AS concert_id '
+                    'FROM concerts c '
+                    'JOIN performances p ON p.concert_id = c.id '
+                    'JOIN artists_performances ap ON ap.concert_id = p.concert_id AND ap.order_in_concert = p.number_of_order '
+                    'JOIN artists a ON a.id = ap.artist_id '
+                    'WHERE a.id = ? '
+    , (id, )).fetchall()
+
+
+    return render_template('artist.html', artist=artist, cds=cds, concerts=concerts)
 
 @app.route('/artist-add')
 def artist_add() -> str:
@@ -1231,8 +1249,19 @@ def concert(id: str) -> str:
         # 指定された song_id の行が無かった
         return render_template('concert-not-found.html')
 
+    performances = cur.execute(
+                        'SELECT p.number_of_order, s.title AS song_title, GROUP_CONCAT(a.name, ", ") AS artists '
+                        'FROM performances p '
+                        'JOIN songs s ON s.id = p.song_id '
+                        'JOIN artists_performances ap ON ap.concert_id = p.concert_id AND ap.order_in_concert = p.number_of_order '
+                        'JOIN artists a ON a.id = ap.artist_id '
+                        'WHERE p.concert_id = ? '
+                        'GROUP BY p.number_of_order, s.title '
+                        'ORDER BY p.number_of_order'
+                        , (id,)).fetchall()
+
     # 楽曲の情報をテンプレートへ渡してレンダリングしたものを返す
-    return render_template('concert.html', concert=concert)
+    return render_template('concert.html', concert=concert, performances=performances)
 
 @app.route('/concert-add')
 def concert_add() -> str:
