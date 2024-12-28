@@ -12,7 +12,7 @@
       <a href="{{url_for('song_edit', id=song.id)}}">編集</a><br>
       <a href="{{url_for('song_del', id=song.id)}}">削除</a>
     </p>
-    <hs>収録CD</h2>
+    <h2>収録CD</h2>
       <ul>
       {% for cd in cds %}
         <li>{{cd.title}}<br>

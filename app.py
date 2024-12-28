@@ -565,21 +565,37 @@ def cd_edit_update(id: str) -> Response:
         return render_template('cd-edit-results.html',
                     results='シリーズ通し番号は数値で指定してください')
 
+    if order_in_series_str:
+        # データベースを更新
+        try:
+        # cds テーブルの指定された行のパラメータを更新
+            cur.execute('UPDATE cds '
+                        'SET title = ?, '
+                        'series_name = ?, '
+                        'order_in_series = ?, '
+                        'issued_date = ? '
+                        'WHERE id = ?',
+                        (title, series_name, order_in_series, issued_date, id))
+        except sqlite3.Error:
+            # データベースエラーが発生
+            return redirect(url_for('cd_edit_results',
+                                    code='database-error'))
 
-    # データベースを更新
-    try:
-      # cds テーブルの指定された行のパラメータを更新
-        cur.execute('UPDATE cds '
-                    'SET title = ?, '
-                    'series_name = ?, '
-                    'order_in_series = ?, '
-                    'issued_date = ? '
-                    'WHERE id = ?',
-                    (id, title, series_name, order_in_series, issued_date, id))
-    except sqlite3.Error:
-        # データベースエラーが発生
-        return redirect(url_for('cd_edit_results',
-                                code='database-error'))
+    else:
+        # データベースを更新
+        try:
+        # cds テーブルの指定された行のパラメータを更新
+            cur.execute('UPDATE cds '
+                        'SET title = ?, '
+                        'series_name = ?, '
+                        'order_in_series = NULL, '
+                        'issued_date = ? '
+                        'WHERE id = ?',
+                        (title, series_name, issued_date, id))
+        except sqlite3.Error:
+            # データベースエラーが発生
+            return redirect(url_for('cd_edit_results',
+                                    code='database-error'))
     # コミット（データベース更新処理を確定）
     con.commit()
 
