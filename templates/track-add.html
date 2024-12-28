@@ -12,6 +12,7 @@
         トラック番号: <input type="text" name="track_number"><br>
         曲名: <input type="text" name="song_title"><br>
         アーティスト名: <input type="text" name="artist_name"><br>
+        <input type="hidden" name="cd_id" value="{{cd.id}}">
         <input type="submit" value="追加">
       </form>
       <a href="{{ url_for('cd', id=cd.id) }}">CD詳細に戻る</a>

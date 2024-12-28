@@ -915,6 +915,71 @@ def track_add(id: str) -> str:
 
     return render_template('track-add.html', cd=cd)
 
+@app.route('/track-add/<id>', methods=['POST'])
+def track_add_execute() -> Response:
+     # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    cd_id = request.form['cd_id']
+
+    track_number_str = request.form['track_number']
+    try:
+        # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
+        track_number = int(track_number_str)
+    except ValueError:
+    # シリーズ通し番号が整数型へ変換できない
+        return redirect(url_for('track_add_results',
+                    code='track-number-has-invalid-charactor'))
+
+    song_title = request.form['song_title']
+    if has_control_character(song_title):
+        return redirect(url_for('track_add_results',
+                                code='include-control-charactor'))
+    # 変更したい楽曲名の楽曲IDを取得
+    song = cur.execute('SELECT id FROM songs WHERE name = ?',
+                        (song_title,)).fetchone()
+    song_id = song['id']
+
+    artist_name = request.form['artist_name']
+    if has_control_character(artist_name):
+        return redirect(url_for('track_add_results',
+                                code='include-control-charactor'))
+    # 変更したいアーティスト名のアーティストIDを取得
+    artist = cur.execute('SELECT id FROM artists WHERE name = ?',
+                        (artist_name,)).fetchone()
+    artist_id = artist['id']
+
+
+    try:
+        # tracks テーブルの指定された行のパラメータを更新
+        cur.execute(
+                    'INSERT INTO tracks '
+                    '(cd_id, track_number, song_id) '
+                    'VALUES (?, ?, ?) ',
+                    (cd_id, track_number, song_id))
+
+    except sqlite3.Error:
+            return redirect(url_for('tracks_edit_results',
+                                    code='database-error'))
+
+    try:
+            # tracks テーブルの指定された行のパラメータを更新
+        cur.execute(
+                    'INSERT INTO tracks_artists '
+                    '(cd_id, track_number, artist_id) '
+                    'VALUES (?, ?, ?) ',
+                    (cd_id, track_number, artist_id))
+    except sqlite3.Error:
+        return redirect(url_for('tracks_edit_results',
+                        code='database-error'))
+
+@app.route('/track-add-results/<code>')
+def track_add_results(code: str) -> str:
+    return render_template('track-add-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
+
 @app.route('/tracks-edit/<id>')
 def tracks_edit(id: str) -> str:
     con = get_db()
@@ -1233,7 +1298,7 @@ def artist_edit(id: str) -> str:
     con = get_db()
     cur = con.cursor()
 
-    cd = cur.execute('SELECT * FROM artists WHERE id = ?',
+    artist = cur.execute('SELECT * FROM artists WHERE id = ?',
                         (id,)).fetchone()
 
     # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
@@ -1273,7 +1338,7 @@ def artist_edit_update(id: str) -> Response:
     try:
         cur.execute('UPDATE artists '
                     'SET name = ?, '
-                    'group_name = ?, '
+                    'group_name = ? '
                     'WHERE id = ?',
                     (name, group_name, id))
     except sqlite3.Error:
