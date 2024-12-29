@@ -1,13 +1,12 @@
 #!/application/app.py
 """
-データベースを使った Web アプリケーションのサンプル.
+ディスコグラフィのデータベースを使った Web アプリケーション
 
 """
 
 import sqlite3
 from typing import Final, Optional, Union
 import unicodedata
-
 from flask import Flask, g, redirect, render_template, request, url_for
 from werkzeug import Response
 
@@ -34,26 +33,6 @@ RESULT_MESSAGES: Final[dict[str, str]] = {
     '指定された楽曲は存在しません',
     'artist-does-not-exist':
     '指定されたアーティストは存在しません',
-    'id-does-not-exist':
-    '指定された社員番号は存在しません',
-    'id-is-manager':
-    '指定された社員番号の社員には部下がいます - '
-    '部下に登録された上司を変更してから削除してください',
-    'manager-id-has-invalid-charactor':
-    '指定された上司の社員番号には使えない文字があります - '
-    '数字のみで指定してください',
-    'manager-id-does-not-exist':
-    '指定された上司の社員番号が存在しません - '
-    '既に存在する社員番号か追加する社員の社員番号と同じものを指定してください',
-    'salary-has-invalid-charactor':
-    '指定された給与には使えない文字があります - '
-    '数字のみで指定してください',
-    'birth-year-has-invalid-charactor':
-    '指定された生年には使えない文字があります - '
-    '数字のみで指定してください',
-    'start-year-has-invalid-charactor':
-    '指定された入社年には使えない文字があります - '
-    '数字のみで指定してください',
     'include-control-charactor':
     '制御文字は指定しないでください',
     'database-error':
@@ -1553,6 +1532,71 @@ def concert_del_results(code: str) -> str:
     return render_template('concert-del-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
+
+@app.route('/concert-edit/<id>')
+def concert_edit(id: str) -> str:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    concert = cur.execute('SELECT * FROM concerts WHERE id = ?',
+                        (id,)).fetchone()
+
+    # 編集対象の コンサート 情報をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('concert-edit.html', concert=concert)
+
+@app.route('/concert-edit/<id>', methods=['POST'])
+def concert_edit_update(id: str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    concert = cur.execute('SELECT id FROM concerts WHERE id = ?',
+                           (id,)).fetchone()
+    if concert is None:
+        # 指定された CD ID の行が無い
+        return redirect(url_for('concert_edit_results',
+                                code='id-does-not-exist'))
+
+    # リクエストされた POST パラメータの内容を取り出す
+    title = request.form['title']
+    held_date = request.form['held_date']
+
+    if has_control_character(title):
+            # タイトルに制御文字が含まれる
+            return redirect(url_for('concert_edit_results',
+                                    code='include-control-charactor'))
+
+    if has_control_character(held_date):
+            # タイトルに制御文字が含まれる
+            return redirect(url_for('concert_edit_results',
+                                    code='include-control-charactor'))
+
+    # データベースを更新
+    try:
+        cur.execute('UPDATE concerts '
+                    'SET title = ?, '
+                    'held_date = ? '
+                    'WHERE id = ?',
+                    (title, held_date, id))
+
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('concert_edit_results',
+                                code='database-error'))
+    # コミット（データベース更新処理を確定）
+    con.commit()
+
+    # CD編集完了
+    return redirect(url_for('concert_edit_results',
+                            code='updated'))
+
+
+@app.route('/concert-edit-results/<code>')
+def concert_edit_results(code: str) -> str:
+
+    return render_template('concert-edit-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
 
 
 if __name__ == '__main__':
