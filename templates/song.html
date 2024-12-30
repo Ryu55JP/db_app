@@ -15,13 +15,13 @@
     <h2>収録CD</h2>
       <ul>
       {% for cd in cds %}
-        <li>{{cd.title}}<br>
+        <li><a href="{{url_for('cd', id=cd.cd_id)}}" style="color: black;">{{cd.title}}</a><br>
       {% endfor %}
       </ul>
     <h2>披露されたコンサート</h2>
       <ul>
       {% for concert in concerts %}
-        <li>{{concert.title}}<br>
+        <li><a href="{{url_for('concert', id=concert.concert_id)}}" style="color: black;">{{concert.title}}</a><br>
       {% endfor %}
     <p>
       <hr style="margin-top: 20px; margin-bottom: 20px;"><br>

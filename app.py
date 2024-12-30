@@ -207,7 +207,7 @@ def cd(id: str) -> str:
       SELECT * FROM cds WHERE id = ?
       ''',(id,)).fetchone()
     songs = cur.execute('''
-      SELECT t.track_number, s.title, GROUP_CONCAT(a.name, ', ') AS artists
+      SELECT t.track_number, s.title, GROUP_CONCAT(a.name, ', ') AS artists, s.id AS song_id
         FROM tracks t
           JOIN songs s ON s.id = t.song_id
           JOIN tracks_artists ta ON ta.cd_id = t.cd_id AND ta.track_number = t.track_number
@@ -678,14 +678,14 @@ def song(id: str) -> str:
     song = cur.execute('SELECT * FROM songs WHERE id = ?', (id,)).fetchone()
 
     cds = cur.execute(
-        'SELECT c.title '
+        'SELECT DISTINCT c.title, c.id AS cd_id '
         'FROM cds c '
         'JOIN tracks t ON c.id = t.cd_id '
         'WHERE t.song_id = ? '
         , (id,)).fetchall()
 
     concerts = cur.execute(
-        'SELECT c.title '
+        'SELECT DISTINCT c.title, c.id AS concert_id '
         'FROM concerts c '
         'JOIN performances p ON p.concert_id = c.id '
         'JOIN songs s ON s.id = p.song_id '
@@ -1393,7 +1393,7 @@ def concert(id: str) -> str:
         return render_template('concert-not-found.html')
 
     performances = cur.execute(
-                        'SELECT p.number_of_order, s.title AS song_title, GROUP_CONCAT(a.name, ", ") AS artists '
+                        'SELECT p.number_of_order AS number_of_order, s.title AS song_title, s.id AS song_id, GROUP_CONCAT(a.name, ", ") AS artists '
                         'FROM performances p '
                         'JOIN songs s ON s.id = p.song_id '
                         'JOIN artists_performances ap ON ap.concert_id = p.concert_id AND ap.order_in_concert = p.number_of_order '
@@ -1596,6 +1596,137 @@ def concert_edit_update(id: str) -> Response:
 def concert_edit_results(code: str) -> str:
 
     return render_template('concert-edit-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
+
+@app.route('/setlist-edit/<concert_id>')
+def setlist_edit(id: str) -> str:
+    con = get_db()
+    cur = con.cursor()
+
+    concert = cur.execute('SELECT title FROM concerts WHERE id = ?', (concert_id,)).fetchone()
+
+    performances = cur.execute(
+        'SELECT p.number_of_order, s.title AS song_title, a.name AS artist_name '
+        'FROM performances p '
+        'JOIN songs s ON s.id = p.song_id '
+        'JOIN artists_performances ap ON ap.concert_id = p.concert_id AND ap.order_in_concert = p.number_of_order '
+        'JOIN artists a ON a.id = ap.artist_id '
+        'WHERE concert_id = ? '
+        , (concert_id,)).fetchone()
+
+    # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('setlist-edit.html', concert=concert, performances=performances)
+
+@app.route('/setlist-edit/<id>', methods=['POST'])
+def setlist_edit_update(id: str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    # リクエストされた POST パラメータの内容を取り出す
+    cd_id = id
+    track_number = request.form['track_number']
+    song_title = request.form['song_title']
+    new_song_title = request.form['new_song_title']
+    artist_name = request.form['artist_name']
+    new_artist_name = request.form['new_artist_name']
+
+        # デバッグ情報を追加
+    print(f"cd_id: {cd_id}")
+    print(f"track_number: {track_number}")
+    print(f"song_title: {song_title}")
+    print(f"new_song_title: {new_song_title}")
+    print(f"artist_name: {artist_name}")
+    print(f"new_artist_name: {new_artist_name}")
+
+    # 変更がない場合編集画面にそのまま戻る
+    if song_title == new_song_title and artist_name == new_artist_name:
+        # return redirect(url_for('tracks_edit_results',
+                        # code='unchanged'))
+
+        redirect_url = url_for('tracks_edit_results', code='unchanged')
+        print(f"Redirecting to: {redirect_url}")  # デバッグ情報を追加
+        return redirect(redirect_url)
+    # 楽曲に変更があった場合
+    if song_title != new_song_title:
+        # 楽曲IDの存在チェックをする：
+        # songs テーブルで同じ楽曲IDの行を 1 行だけ取り出す
+        song = cur.execute('SELECT id FROM songs WHERE title = ?',
+                            (new_song_title,)).fetchone()
+        if song is None:
+            # 指定された楽曲IDの行が無い
+            return redirect(url_for('tracks_edit_results',
+                                    code='song-does-not-exist'))
+            # return render_template('index.html')
+
+        try:
+            # tracks テーブルの指定された行のパラメータを更新
+            cur.execute(
+            'UPDATE tracks '
+            'SET song_id = ('
+            'SELECT id FROM songs WHERE title = ?'
+            ') '
+            'WHERE cd_id = ? AND track_number = ? '
+            , (new_song_title, cd_id, track_number))
+
+        except sqlite3.Error:
+                return redirect(url_for('tracks_edit_results',
+                                        code='database-error'))
+            # return render_template('index.html')
+
+    # アーティストに変更があった場合
+    if artist_name != new_artist_name:
+        # アーティストIDの存在チェックをする：
+        # artists テーブルで同じアーティストIDの行を 1 行だけ取り出す
+        artist = cur.execute('SELECT id FROM artists WHERE name = ?',
+                            (new_artist_name,)).fetchone()
+        if artist is None:
+            # 指定されたアーティストIDの行が無い
+            return redirect(url_for('tracks_edit_results',
+                                    code='artist-does-not-exist'))
+            # return render_template('index.html')
+
+        # 変更したいアーティスト名のアーティストIDを取得
+        artist = cur.execute('SELECT id FROM artists WHERE name = ?',
+                            (artist_name,)).fetchone()
+        artist_id = artist['id']
+
+        try:
+            # tracks テーブルの指定された行のパラメータを更新
+            cur.execute(
+            'UPDATE artists_tracks '
+            'SET artist_id = ( '
+            'SELECT id FROM artists WHERE name = ? '
+            ') '
+            'WHERE cd_id = ? AND track_number = ? AND artist_id = ?'
+            , (new_artist_id, cd_id, track_number, artist_id))
+
+        except sqlite3.Error:
+            return redirect(url_for('tracks_edit_results',
+                            code='database-error'))
+            # return render_template('index.html')
+
+    con.commit()
+    # 編集が終了したらトラック編集ページに戻る
+
+    cd = cur.execute('SELECT title FROM cds WHERE id = ?', (id,)).fetchone()
+    tracks = cur.execute(
+        'SELECT t.track_number, s.title AS song_title, a.name AS artist_name '
+        'FROM tracks t '
+        'JOIN songs s ON s.id = t.song_id '
+        'JOIN tracks_artists ta ON ta.cd_id = t.cd_id AND ta.track_number = t.track_number '
+        'JOIN artists a ON a.id = ta.artist_id '
+        'WHERE t.cd_id = ? '
+        'ORDER BY t.track_number '
+    , (id,)).fetchall()
+
+    # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('tracks-edit.html', cd=cd, tracks=tracks)
+
+@app.route('/setlist-edit-results/<code>')
+def setlist_edit_results(code: str) -> str:
+    return render_template('tracks-edit-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
 

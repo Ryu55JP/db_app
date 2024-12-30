@@ -1,0 +1,23 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>セットリスト編集</title>
+  </head>
+  <body>
+    <h1>セットリスト編集</h1>
+
+    <p>
+      <form method="POST"
+            action="{{url_for('setlist_edit', concert_id=concert.id)}}">
+        コンサートID: {{performance.concert_id}}<br>
+        <input type="submit" value="決定">
+      </form>
+    </p>
+
+    <p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
+      <a href="{{url_for('concert', id=performance.concert_id)}}">コンサート詳細に戻る</a><br>
+      <a href="{{url_for('index')}}">TOP</a>
+    </p>
+  </body>
+</html>
