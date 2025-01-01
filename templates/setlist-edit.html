@@ -5,18 +5,27 @@
   </head>
   <body>
     <h1>セットリスト編集</h1>
-
+    <form method="POST"
+          action="{{url_for('setlist_edit', id=concert.id)}}">
     <p>
-      <form method="POST"
-            action="{{url_for('setlist_edit', concert_id=concert.id)}}">
-        コンサートID: {{performance.concert_id}}<br>
-        <input type="submit" value="決定">
-      </form>
+      コンサート名: {{concert.title}}<br>
+      <a href="{{url_for('setlist_add', id=concert.id)}}">セットリストに追加</a>
     </p>
-
+    {% for performance in performances %}
+    <p>
+    <input type="hidden" name="id" value="{{concert.id}}">
+    <input type="hidden" name="number_of_order" value="{{performance.number_of_order}}">
+    <input type="hidden" name="song_title" value="{{performance.song_title}}">
+    <input type="hidden" name="artist_name" value="{{performance.artist_name}}">
+    セットリスト番号: {{performance.number_of_order or ''}}<br>
+    楽曲名: <input type="text" name="new_song_title" value="{{performance.song_title or ''}}"><br>
+    アーティスト名: <input type="text" name="new_artist_name" value="{{performance.artist_name or ''}}"><br>
+    <input type="submit" value="決定">
+    </p>
+    {% endfor %}
     <p>
       <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('concert', id=performance.concert_id)}}">コンサート詳細に戻る</a><br>
+      <a href="{{url_for('concert', id=concert.id)}}">コンサート詳細に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

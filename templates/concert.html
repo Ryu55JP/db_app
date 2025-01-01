@@ -18,7 +18,7 @@
       {% for performance in performances %}
         <li><a href="{{url_for('song', id=performance.song_id)}}"  style="color:black;">{{performance.song_title}}</a>&emsp;歌: {{performance.artists}}<br>
       {% endfor %}
-      <a href="{{url_for('setlist_edit', concert_id=concert.id)}}">セットリストを編集</a><br>
+      <a href="{{url_for('setlist_edit', id=concert.id)}}">セットリストを編集</a><br>
     </ol>
 
     <p>
