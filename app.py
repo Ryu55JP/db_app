@@ -388,14 +388,14 @@ def cd_del(id: str) -> str:
     try:
         # CD番号の存在チェックをする：
         # cds テーブルで同じCD番号の行を 1 行だけ取り出す
-        cd = cur.execute('SELECT id FROM cds WHERE id = ?',
+        cd = cur.execute('SELECT * FROM cds WHERE id = ?',
                          (id,)).fetchone()
     except cd is None:
         # 指定されたCD番号の行が無い
         return render_template('cd-del-results.html',
                                results='指定されたCD番号は存在しません')
 
-    return render_template('cd-del.html', id=id)
+    return render_template('cd-del.html', id=id, cd=cd)
 
 @app.route('/cd-del/<id>', methods=['POST'])
 def cd_del_execute(id: str) -> Response:
@@ -813,14 +813,14 @@ def song_del(id: str) -> str:
     try:
         # 楽曲IDの存在チェックをする：
         # songs テーブルで同じ楽曲IDの行を 1 行だけ取り出す
-        song = cur.execute('SELECT id FROM songs WHERE id = ?',
+        song = cur.execute('SELECT * FROM songs WHERE id = ?',
                          (id,)).fetchone()
     except song is None:
         # 指定されたCD番号の行が無い
         return render_template('song-del-results.html',
                                results='指定された楽曲は存在しません')
 
-    return render_template('song-del.html', id=id)
+    return render_template('song-del.html', id=id, song=song)
 
 @app.route('/song-del/<id>', methods=['POST'])
 def song_del_execute(id: str) -> Response:
@@ -1212,14 +1212,14 @@ def artist_del(id: str) -> str:
     try:
         # CD番号の存在チェックをする：
         # cds テーブルで同じCD番号の行を 1 行だけ取り出す
-        artist = cur.execute('SELECT id FROM artists WHERE id = ?',
+        artist = cur.execute('SELECT * FROM artists WHERE id = ?',
                          (id,)).fetchone()
     except artist is None:
         # 指定されたCD番号の行が無い
         return render_template('artist-del-results.html',
                                results='指定されたアーティストは存在しません')
 
-    return render_template('artist-del.html', id=id)
+    return render_template('artist-del.html', id=id, artist=artist)
 
 @app.route('/artist-del/<id>', methods=['POST'])
 def artist_del_execute(id: str) -> Response:
@@ -1474,7 +1474,7 @@ def concert_del(id: str) -> str:
         return render_template('concert-del-results.html',
                                results='指定されたコンサートは存在しません')
 
-    return render_template('concert-del.html', id=id)
+    return render_template('concert-del.html', id=id, concert=concert)
 
 
 @app.route('/concert-del/<id>', methods=['POST'])

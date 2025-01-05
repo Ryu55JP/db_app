@@ -5,19 +5,20 @@
   </head>
   <body>
     <h1>コンサート情報編集</h1>
+      <p>
+        <form method="POST"
+              action="{{url_for('concert_edit', id=concert.id)}}">
+          コンサートID: {{concert.id}}<br>
+          コンサートタイトル: <input type="text" name="title" value="{{concert.title}}"><br>
+          開催日: <input type="text" name="held_date"
+                      value="{{concert.held_date}}"><br>
+          <input type="submit" value="決定">
+        </form>
+      </p>
     <p>
-      <form method="POST"
-            action="{{url_for('concert_edit', id=concert.id)}}">
-        コンサートID: {{concert.id}}<br>
-        コンサートタイトル: <input type="text" name="title" value="{{concert.title}}"><br>
-        開催日: <input type="text" name="held_date"
-                     value="{{concert.held_date}}"><br>
-        <input type="submit" value="決定">
-      </form>
-    </p>
-
-    <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('concert', id=concert.id)}}">コンサート詳細に戻る</a><br>
       <a href="{{url_for('concerts')}}">コンサート一覧</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>

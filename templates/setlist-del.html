@@ -5,18 +5,18 @@
   </head>
   <body>
     <h1>セットリスト削除</h1>
-
+      <p>
+        コンサートタイトル: {{concert.title}}<br>
+        このコンサートに含まれるセットリスト全てを削除します。<br>
+        本当にこの操作を実行してよろしいですか？<br>
+        <form method="POST" action="{{url_for('setlist_del_execute', id=id)}}">
+          <input type="submit" value="削除実行">
+        </form>
+      </p>
     <p>
-      コンサートタイトル: {{concert.title}}<br>
-      このコンサートに含まれるセットリスト全てを削除します。<br>
-      本当にこの操作を実行してよろしいですか？<br>
-      <form method="POST" action="{{url_for('setlist_del_execute', id=id)}}">
-        <input type="submit" value="削除実行">
-      </form>
-    </p>
-
-    <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('concert', id=concert.id)}}">コンサート詳細に戻る</a><br>
       <a href="{{url_for('concerts')}}">コンサート一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>

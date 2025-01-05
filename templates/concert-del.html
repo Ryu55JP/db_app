@@ -5,17 +5,17 @@
   </head>
   <body>
     <h1>コンサート削除</h1>
-
+      <p>
+        本当にこのコンサートを削除しますか？<br>
+        <form method="POST" action="{{url_for('concert_del_execute', id=id)}}">
+          <input type="submit" value="削除実行">
+        </form>
+      </p>
     <p>
-      本当にこのコンサートを削除しますか？<br>
-      <form method="POST" action="{{url_for('concert_del_execute', id=id)}}">
-        <input type="submit" value="削除実行">
-      </form>
-    </p>
-
-    <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('concerts')}}">コンサート一覧</a><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('concert', id=concert.id)}}">コンサート詳細に戻る</a><br>
+      <a href="{{url_for('concerts')}}">コンサート一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

@@ -5,27 +5,25 @@
   </head>
   <body>
     <h1>アーティスト一覧</h1>
-
+      <p>
+          <form method="POST" action="{{url_for('artists_filtered')}}">
+          アーティスト名: <input type="text" name="name_filter" value="{{ request.form.name_filter or '' }}"><br>
+          <input type="submit" value="絞り込む"><br>
+          （ワイルドカード文字として%が使えます）
+        </form>
+        <a href="{{url_for('artist_add')}}">アーティスト追加</a><br>
+        <hr style="margin-top: 20px; margin-bottom: 20px;">
+      </p>
+      {% for artist in artists %}
+        <p>
+          アーティスト名: {{ artist.name or ''}}<br>
+          所属グループ: {{ artist.group_name or 'なし'}}<br>
+          <a href="{{ url_for('artist', id=artist.id) }}" >詳細</a>
+        </p>
+      {% endfor %}
     <p>
-        <form method="POST" action="{{url_for('artists_filtered')}}">
-        アーティスト名: <input type="text" name="name_filter" value="{{ request.form.name_filter or '' }}" or ""><br>
-        <input type="submit" value="絞り込む"><br>
-        （ワイルドカード文字として%が使えます）
-      </form>
-      <a href="{{url_for('artist_add')}}">アーティスト追加</a><br>
+      <br>
       <hr style="margin-top: 20px; margin-bottom: 20px;">
-    </p>
-
-    {% for artist in artists %}
-    <p>
-      アーティスト名: {{ artist.name or '不明'}}<br>
-      所属グループ: {{ artist.group_name or 'なし'}}<br>
-      <a href="{{ url_for('artist', id=artist.id) }}" >詳細</a><br>
-    </p>
-    {% endfor %}
-
-    <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

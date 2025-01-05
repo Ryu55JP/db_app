@@ -5,18 +5,17 @@
   </head>
   <body>
     <h1>楽曲追加</h1>
-
+      <p>
+        <form method="POST" action="{{url_for('song_add_execute')}}">
+          楽曲ID: <input type="text" name="id"><br>
+          タイトル: <input type="text" name="title"><br>
+          <input type="submit" value="追加">
+        </form>
+      </p>
     <p>
-      <form method="POST" action="{{url_for('song_add_execute')}}">
-        楽曲ID: <input type="text" name="id"><br>
-        タイトル: <input type="text" name="title"><br>
-        <input type="submit" value="追加">
-      </form>
-    </p>
-
-    <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('songs')}}">楽曲一覧</a><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('songs')}}">楽曲一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

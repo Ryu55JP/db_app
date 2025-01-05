@@ -5,19 +5,18 @@
   </head>
   <body>
     <h1>CD追加</h1>
-
+      <p>
+        <form method="POST" action="{{url_for('cd_add_execute')}}">
+          CDタイトル: <input type="text" name="title"><br>
+          品番: <input type="text" name="id"><br>
+          シリーズ名: <input type="text" name="series_name"><br>
+          シリーズ通し番号: <input type="integer" name="order_in_series"><br>
+          発売日: <input type="text" name="issued_date"><br>
+          <input type="submit" value="追加">
+        </form>
+      </p>
     <p>
-      <form method="POST" action="{{url_for('cd_add_execute')}}">
-        CDタイトル: <input type="text" name="title"><br>
-        品番: <input type="text" name="id"><br>
-        シリーズ名: <input type="text" name="series_name"><br>
-        シリーズ通し番号: <input type="integer" name="order_in_series"><br>
-        発売日: <input type="text" name="issued_date"><br>
-        <input type="submit" value="追加">
-      </form>
-    </p>
-
-    <p>
+      <br>
       <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
       <a href="{{url_for('cds')}}">CD一覧</a><br>
       <a href="{{url_for('index')}}">TOP</a>

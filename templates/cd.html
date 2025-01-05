@@ -5,30 +5,32 @@
   </head>
   <body>
     <h1>CD詳細</h1>
-
-    <p>
-      CDタイトル: {{cd.title}}<br>
-      品番: {{cd.id}}<br>
-      シリーズ: {{cd.series_name}} - {{cd.order_in_series}}<br>
-      発売日: {{cd.issued_date}}<br>
-    <p>
-      <a href="{{url_for('cd_edit', id=cd.id)}}">編集</a><br>
-      <a href="{{url_for('cd_del', id=cd.id)}}">削除</a>
-    </p>
-    <h2>収録曲</h2><!-- ここに曲一覧を表示する -->
+    <h2>CD情報</h2>
+      <p>
+        CDタイトル: {{cd.title}}<br>
+        品番: {{cd.id}}<br>
+        シリーズ: {{cd.series_name}} - {{cd.order_in_series}}<br>
+        発売日: {{cd.issued_date}}<br>
+      </p>
+      <p>
+        <a href="{{url_for('cd_edit', id=cd.id)}}">編集</a><br>
+        <a href="{{url_for('cd_del', id=cd.id)}}">削除</a>
+      </p>
+    <h2>収録曲</h2>
       <ol>
-      {% for song in songs %}
-        <li><a href="{{url_for('song', id=song.song_id)}}" style="color: black;">{{song.title}}</a>&emsp;歌: {{song.artists}}<br>
-      {% endfor %}
-      {#<a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>#}
-      <a href="{{url_for('track_add', id=cd.id)}}">トラック追加</a>
-      <br>
-      <a href="{{url_for('tracks_del', id=cd.id)}}">トラックを全て削除</a>（トラックを個別に削除することはできません）<br>
-    </ol>
-
+        {% for song in songs %}
+          <li><a href="{{url_for('song', id=song.song_id)}}" style="color: black;">{{song.title}}</a>&emsp;歌: {{song.artists}}
+        {% endfor %}
+      </ol>
+      <p>
+        {#<a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>#}
+        <a href="{{url_for('track_add', id=cd.id)}}">トラックを追加</a><br>
+        <a href="{{url_for('tracks_del', id=cd.id)}}">トラックを全て削除</a>（トラックを個別に削除することはできません）
+      </p>
     <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('cds')}}">CD一覧</a><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('cds')}}">CD一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

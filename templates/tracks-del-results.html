@@ -5,13 +5,13 @@
   </head>
   <body>
     <h1>トラック削除結果</h1>
-
+      <p>
+        {{results}}
+      </p>
     <p>
-      {{results}}
-    </p>
-
-    <p>
-      <a href="{{url_for('cds')}}">CD一覧</a><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('cds')}}">CD一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

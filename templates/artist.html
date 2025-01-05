@@ -5,30 +5,32 @@
   </head>
   <body>
     <h1>アーティスト詳細</h1>
-    <p>
-      アーティストID: {{artist.id}}<br>
-      アーティスト名: {{artist.name}}<br>
-      グループ名: {{artist.group_name}}
-    </p>
-    <p>
-      <a href="{{url_for('artist_edit', id=artist.id)}}">編集</a><br>
-      <a href="{{url_for('artist_del', id=artist.id)}}">削除</a>
-    </p>
+    <h2>アーティスト情報</h2>
+      <p>
+        アーティストID: {{artist.id}}<br>
+        アーティスト名: {{artist.name}}<br>
+        グループ名: {{artist.group_name}}
+      </p>
+      <p>
+        <a href="{{url_for('artist_edit', id=artist.id)}}">編集</a><br>
+        <a href="{{url_for('artist_del', id=artist.id)}}">削除</a>
+      </p>
     <h2>参加CD</h2>
-    {% for cd in cds %}
-    <p>
-      <a href="{{ url_for('cd', id=cd.cd_id) }}">{{ cd.cd_title or 'タイトルなし' }}</a>
-    </p>
-    {% endfor %}
+      <ul>
+        {% for cd in cds %}
+          <li><a href="{{ url_for('cd', id=cd.cd_id) }}">{{ cd.cd_title or 'タイトルなし' }}</a>
+        {% endfor %}
+      </ul>
     <h2>参加コンサート</h2>
-    {% for concert in concerts %}
+      <ul>
+        {% for concert in concerts %}
+          <li><a href="{{ url_for('concert', id=concert.concert_id) }}">{{ concert.concert_title or 'タイトルなし' }}</a>
+        {% endfor %}
+      </ul>
     <p>
-      <a href="{{ url_for('concert', id=concert.concert_id) }}">{{ concert.concert_title or 'タイトルなし' }}</a>
-    </p>
-    {% endfor %}
-    <p>
+      <br>
       <hr style="margin-top: 20px; margin-bottom: 20px;">
-      <a href="{{url_for('artists')}}">アーティスト一覧</a><br>
+      <a href="{{url_for('artists')}}">アーティスト一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

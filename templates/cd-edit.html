@@ -5,23 +5,24 @@
   </head>
   <body>
     <h1>CD情報編集</h1>
+      <p>
+        <form method="POST"
+              action="{{url_for('cd_edit', id=cd.id)}}">
+          CDタイトル: <input type="text" name="title" value="{{cd.title}}"><br>
+          品番: {{cd.id}}<br>
+          シリーズ: <input type="text" name="series_name"
+                        value="{{cd.series_name}}"> - <input type="text" name="order_in_series"
+                        value="{{cd.order_in_series}}"><br>
+          発売日: <input type="text" name="issued_date"
+                      value="{{cd.issued_date}}"><br>
+          <input type="submit" value="決定">
+        </form>
+      </p>
     <p>
-      <form method="POST"
-            action="{{url_for('cd_edit', id=cd.id)}}">
-        CDタイトル: <input type="text" name="title" value="{{cd.title}}"><br>
-        品番: {{cd.id}}<br>
-        シリーズ: <input type="text" name="series_name"
-                       value="{{cd.series_name}}"> - <input type="text" name="order_in_series"
-                       value="{{cd.order_in_series}}"><br>
-        発売日: <input type="text" name="issued_date"
-                     value="{{cd.issued_date}}"><br>
-        <input type="submit" value="決定">
-      </form>
-    </p>
-
-    <p>
+      <br>
       <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('cds')}}">CD一覧</a><br>
+      <a href="{{url_for('cd', id=cd.id)}}">CD詳細に戻る</a><br>
+      <a href="{{url_for('cds')}}">CD一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

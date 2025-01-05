@@ -5,13 +5,14 @@
   </head>
   <body>
     <h1>アーティスト追加結果</h1>
-
+      <p>
+        {{results}}
+      </p>
     <p>
-      {{results}}
-    </p>
-    <p>
-      <a href="{{url_for('artist_add')}}">アーティスト追加</a><br>
-      <a href="{{url_for('artists')}}">アーティスト一覧</a><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('artist_add')}}">さらにアーティストを追加</a><br>
+      <a href="{{url_for('artists')}}">アーティスト一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

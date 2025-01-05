@@ -5,28 +5,31 @@
   </head>
   <body>
     <h1>コンサート詳細</h1>
-
-    <p>
-      タイトル: {{concert.title}}<br>
-      開催日: {{concert.held_date}}<br>
-    <p>
-      <a href="{{url_for('concert_edit', id=concert.id)}}">編集</a><br>
-      <a href="{{url_for('concert_del', id=concert.id)}}">削除</a>
-    </p>
+    <h2>コンサート情報</h2>
+      <p>
+        タイトル: {{concert.title}}<br>
+        開催日: {{concert.held_date}}<br>
+      </p>
+      <p>
+        <a href="{{url_for('concert_edit', id=concert.id)}}">編集</a><br>
+        <a href="{{url_for('concert_del', id=concert.id)}}">削除</a>
+      </p>
     <h2>セットリスト</h2>
-    <ol>
-      {% for performance in performances %}
-        <li><a href="{{url_for('song', id=performance.song_id)}}"  style="color:black;">{{performance.song_title}}</a>&emsp;歌: {{performance.artists}}<br>
-      {% endfor %}
-      {#<a href="{{url_for('setlist_edit', id=concert.id)}}">セットリストを編集</a><br>#}
-      <a href="{{url_for('setlist_add', id=concert.id)}}">セットリストに追加</a>
-      <br>
-      <a href="{{url_for('setlist_del', id=concert.id)}}">セットリストを全て削除</a>（セットリストを個別に削除することはできません）<br>
-    </ol>
+      <ol>
+        {% for performance in performances %}
+          <li><a href="{{url_for('song', id=performance.song_id)}}"  style="color:black;">{{performance.song_title}}</a>&emsp;歌: {{performance.artists}}<br>
+        {% endfor %}
+      </ol>
+        {#<a href="{{url_for('setlist_edit', id=concert.id)}}">セットリストを編集</a><br>#}
+        <a href="{{url_for('setlist_add', id=concert.id)}}">セットリストに追加</a>
+        <br>
+        <a href="{{url_for('setlist_del', id=concert.id)}}">セットリストを全て削除</a><br>
+        （セットリストを個別に削除することはできません）
 
     <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('concerts')}}">コンサート一覧</a><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('concerts')}}">コンサート一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

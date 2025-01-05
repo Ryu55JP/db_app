@@ -5,18 +5,18 @@
   </head>
   <body>
     <h1>トラック削除</h1>
-
+      <p>
+        CDタイトル: {{cd.title}}<br>
+        このCDに含まれるトラック全てを削除します。<br>
+        本当にこの操作を実行してよろしいですか？
+        <form method="POST" action="{{url_for('tracks_del_execute', id=id)}}">
+          <input type="submit" value="削除実行">
+        </form>
+      </p>
     <p>
-      CDタイトル: {{cd.title}}<br>
-      このCDに含まれるトラック全てを削除します。<br>
-      本当にこの操作を実行してよろしいですか？<br>
-      <form method="POST" action="{{url_for('tracks_del_execute', id=id)}}">
-        <input type="submit" value="削除実行">
-      </form>
-    </p>
-
-    <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('cd', id=cd.id)}}">CD詳細に戻る</a><br>
       <a href="{{url_for('cds')}}">CD一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>

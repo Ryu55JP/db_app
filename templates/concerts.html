@@ -5,25 +5,23 @@
   </head>
   <body>
     <h1>コンサート一覧</h1>
-
-    <p>
+      <p>
         <form method="POST" action="{{url_for('concerts_filtered')}}">
-        タイトル: <input type="text" name="title_filter" value="{{ request.form.title_filter or '' }}" or ""><br>
-        <input type="submit" value="絞り込む"><br>
-        （ワイルドカード文字として%が使えます）
-      </form>
-      <a href="{{url_for('concert_add')}}">コンサート追加</a><br>
+          タイトル: <input type="text" name="title_filter" value="{{ request.form.title_filter or '' }}"><br>
+          <input type="submit" value="絞り込む"><br>
+          （ワイルドカード文字として%が使えます）
+        </form>
+        <a href="{{url_for('concert_add')}}">コンサート追加</a><br>
+        <hr style="margin-top: 20px; margin-bottom: 20px;">
+      </p>
+      {% for concert in concerts %}
+        <p>
+          <a href="{{ url_for('concert', id=concert.id) }}" style="color: black;">{{ concert.title or 'タイトルなし' }}</a>
+        </p>
+      {% endfor %}
+    <p>
+      <br>
       <hr style="margin-top: 20px; margin-bottom: 20px;">
-    </p>
-
-    {% for concert in concerts %}
-    <p>
-      <a href="{{ url_for('concert', id=concert.id) }}" style="color: black;">{{ concert.title or 'タイトルなし' }}</a>
-    </p>
-    {% endfor %}
-
-    <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

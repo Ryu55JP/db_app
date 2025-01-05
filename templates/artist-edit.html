@@ -5,18 +5,19 @@
   </head>
   <body>
     <h1>アーティスト情報編集</h1>
+      <p>
+        <form method="POST"
+              action="{{url_for('artist_edit', id=artist.id)}}">
+          アーティスト名: <input type="text" name="name" value="{{artist.name}}"><br>
+          グループ名: <input type="text" name="group_name" value="{{artist.group_name}}"><br>
+          <input type="submit" value="決定">
+        </form>
+      </p>
     <p>
-      <form method="POST"
-            action="{{url_for('artist_edit', id=artist.id)}}">
-        アーティスト名: <input type="text" name="name" value="{{artist.name}}"><br>
-        グループ名: <input type="text" name="group_name" value="{{artist.group_name}}"><br>
-        <input type="submit" value="決定">
-      </form>
-    </p>
-
-    <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('artists')}}">アーティスト一覧</a><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('artist', id=artist.id)}}">アーティスト詳細に戻る</a><br>
+      <a href="{{url_for('artists')}}">アーティスト一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>

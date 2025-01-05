@@ -5,17 +5,18 @@
   </head>
   <body>
     <h1>楽曲削除</h1>
-
+      <p>
+        楽曲タイトル: {{song.title}}<br>
+        本当にこの楽曲を削除しますか？<br>
+        <form method="POST" action="{{url_for('song_del_execute', id=id)}}">
+          <input type="submit" value="削除実行">
+        </form>
+      </p>
     <p>
-      本当にこの楽曲を削除しますか？<br>
-      <form method="POST" action="{{url_for('song_del_execute', id=id)}}">
-        <input type="submit" value="削除実行">
-      </form>
-    </p>
-
-    <p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('songs')}}">楽曲一覧</a><br>
+      <br>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('song', id=song.id)}}">楽曲詳細に戻る</a><br>
+      <a href="{{url_for('songs')}}">楽曲一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>
