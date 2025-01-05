@@ -5,10 +5,11 @@
   </head>
   <body>
     <h1>アーティスト詳細</h1>
-
     <p>
+      アーティストID: {{artist.id}}<br>
       アーティスト名: {{artist.name}}<br>
-      グループ名: {{artist.group_name}}<br>
+      グループ名: {{artist.group_name}}
+    </p>
     <p>
       <a href="{{url_for('artist_edit', id=artist.id)}}">編集</a><br>
       <a href="{{url_for('artist_del', id=artist.id)}}">削除</a>

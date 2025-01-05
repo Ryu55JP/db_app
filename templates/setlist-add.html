@@ -7,15 +7,19 @@
     <h1>セットリストに追加</h1>
 
     <p>
-      <form method="POST" action="{{url_for('setlist_add_execute')}}">
+      <form method="POST" action="{{url_for('setlist_add_execute', id=concert.id)}}">
         コンサートタイトル: {{concert.title}}<br>
         セットリスト番号: <input type="text" name="number_of_order"><br>
-        曲名: <input type="text" name="song_title"><br>
-        アーティスト名: <input type="text" name="artist_name"><br>
+        楽曲ID: <input type="text" name="song_id"><br>
+        アーティストID: <input type="text" name="artist_id"><br>
         <input type="hidden" name="id" value="{{concert.id}}">
         <input type="submit" value="追加">
       </form>
-      <a href="{{ url_for('concert', id=concert.id) }}">コンサート詳細に戻る</a>
+      <a href="{{ url_for('concert', id=concert.id) }}">コンサート詳細に戻る</a><br>
+      <br>
+      楽曲やアーティストのIDはそれぞれの詳細ページを参照してください<br>
+      <a href="{{url_for('songs')}}">楽曲一覧</a><br>
+      <a href="{{url_for('artists')}}">アーティスト一覧</a>
     </p>
 
     <p>

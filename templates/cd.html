@@ -20,7 +20,10 @@
       {% for song in songs %}
         <li><a href="{{url_for('song', id=song.song_id)}}" style="color: black;">{{song.title}}</a>&emsp;歌: {{song.artists}}<br>
       {% endfor %}
-      <a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>
+      {#<a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>#}
+      <a href="{{url_for('track_add', id=cd.id)}}">トラック追加</a>
+      <br>
+      <a href="{{url_for('tracks_del', id=cd.id)}}">トラックを全て削除</a>（トラックを個別に削除することはできません）<br>
     </ol>
 
     <p>

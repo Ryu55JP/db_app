@@ -10,7 +10,7 @@
       <a href="{{url_for('song_add')}}">楽曲追加</a>
     </p>
     <p>
-    <form method="POST" action="{{url_for('tracks_edit_update', id=cd_id)}}">
+    <form method="POST" action="{{url_for('tracks_edit', id=cd_id)}}">
       <p>
         トラックの楽曲変更は同じトラックに対して一括で行います。<br>
       </p>
@@ -21,18 +21,18 @@
       {% for track in tracks %}
       <p>
         トラック{{track.track_number}}<br>
-        曲名: <input type="text" name="new_song_title" value="{{track.song_title or ''}}"><br>
-        アーティスト名: <input type="text" name="new_artist_name" value="{{track.artist_name or ''}}"><br>
-        <input type="hidden" name="song_title" value="{{track.song_title}}">
-        <input type="hidden" name="artist_name" value="{{track.artist_name}}">
+        楽曲ID: <input type="text" name="new_song_id" value="{{track.song_id or ''}}">（楽曲名: {{track.song_title or ''}}）<br>
+        アーティストID: <input type="text" name="new_artist_id" value="{{track.artist_id or ''}}">（アーティスト名: {{track.artist_name or ''}}）<br>
         <input type="hidden" name="track_number" value="{{track.track_number}}">
+        <input type="hidden" name="song_id" value="{{track.song_title}}">
+        <input type="hidden" name="artist_id" value="{{track.artist_name}}">
         <input type="submit" value="トラック{{track.track_number}}に対する編集を確定">
       </p>
       {% endfor %}
     </form>
     <p>
       <hr style="margin-top: 20px; margin-bottom: 20px;">
-      <a href="{{url_for('cds')}}">CD一覧</a><br>
+      <a href="{{url_for('cd', id=cd.id)}}">CD詳細に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
   </body>
