@@ -78,7 +78,7 @@ RESULT_MESSAGES: Final[dict[str, str]] = {
 
 def get_db() -> sqlite3.Connection:
     """
-    データベース接続を得る.
+    データベース接続を得る
 
     リクエスト処理中にデータベース接続が必要になったら呼ぶ関数。
 
@@ -137,7 +137,7 @@ def index() -> str:
     """
     入口のページ.
 
-    `http://localhost:5000/` へのリクエストがあった時に Flask が呼ぶ関数。
+    'http://localhost:5000/' へのリクエストがあった時に Flask が呼ぶ関数。
 
     テンプレート index.html
     （本アプリケーションの説明や他ページへのリンクがある）
@@ -149,13 +149,14 @@ def index() -> str:
     # テンプレートへ何も渡さずにレンダリングしたものを返す
     return render_template('index.html')
 
+
 # CD関連ページ
 @app.route('/cds')
 def cds() -> str:
     """
     CD 一覧のページ（全件）.
 
-    `http://localhost:5000/cds` への GET メソッドによる
+    'http://localhost:5000/cds' への GET メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
 
     データベース接続を得て、SELECT 文で全 CD 一覧を取得し、
@@ -178,14 +179,13 @@ def cds_filtered() -> str:
     """
     CD 一覧のページ（絞り込み）.
 
-    `http://localhost:5000/cds` への POST メソッドによる
+    'http://localhost:5000/cds' への POST メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
-    絞り込み用のタイトルが POST のパラメータ `title_filter` に入っている。
+    絞り込み用のタイトルが POST のパラメータ 'title_filter' に入っている。
 
     データベース接続を得て、
     SELECT 文でリクエストされたタイトルで絞り込んだ CD 一覧を取得、
     テンプレート cds.html へ一覧を渡して埋め込んでレンダリングして返す。
-    （これは PRG パターンではない）
 
     Returns:
       str: ページのコンテンツ
@@ -195,8 +195,8 @@ def cds_filtered() -> str:
 
     # cds テーブルからタイトルで絞り込み、
     # 得られた全行から CD の情報を取り出した一覧を取得
-    cds = cur.execute('SELECT * FROM cds WHERE title LIKE ?',
-                          (request.form['title_filter'],)).fetchall()
+    cds = cur.execute('SELECT * FROM cds WHERE title LIKE ?', 
+                      (request.form['title_filter'],)).fetchall()
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
     return render_template('cds.html', cds=cds)
@@ -206,11 +206,11 @@ def cd(id: str) -> str:
     """
     CD 詳細ページ.
 
-    `http://localhost:5000/cd/<id>` への GET メソッドによる
+    'http://localhost:5000/cd/<id>' への GET メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
 
     データベース接続を得て、
-    URL 中の `<id>` で指定された CD の全情報を取得し、
+    URL 中の '<id>' で指定された CD の全情報を取得し、
     テンプレート cd.html へ情報を渡して埋め込んでレンダリングして返す。
     指定された CD が見つからない場合は
     テンプレート cd-not-found.html
@@ -224,23 +224,22 @@ def cd(id: str) -> str:
     con = get_db()
     cur = con.cursor()
 
-    # cds テーブルから指定された CD ID の行を 1 行だけ取り出す
-    cd = cur.execute('''
-      SELECT * FROM cds WHERE id = ?
-      ''',(id,)).fetchone()
-    songs = cur.execute('''
-      SELECT t.track_number, s.title, GROUP_CONCAT(a.name, ', ') AS artists, s.id AS song_id
-        FROM tracks t
-          JOIN songs s ON s.id = t.song_id
-          JOIN tracks_artists ta ON ta.cd_id = t.cd_id AND ta.track_number = t.track_number
-          JOIN artists a ON a.id = ta.artist_id
-        WHERE t.cd_id = ?
-        GROUP BY t.track_number, s.title
-        ORDER BY t.track_number
-      ''', (id, )).fetchall()
+    # cds テーブルから指定された CD品番の行を 1 行だけ取り出す
+    cd = cur.execute('SELECT * FROM cds WHERE id = ? ',
+                     (id,)).fetchone()
+
+    songs = cur.execute('SELECT t.track_number, s.title, GROUP_CONCAT(a.name, ", ") AS artists, s.id AS song_id '
+                        'FROM tracks t '
+                        'JOIN songs s ON s.id = t.song_id '
+                        'JOIN tracks_artists ta ON ta.cd_id = t.cd_id AND ta.track_number = t.track_number '
+                        'JOIN artists a ON a.id = ta.artist_id '
+                        'WHERE t.cd_id = ? '
+                        'GROUP BY t.track_number, s.title '
+                        'ORDER BY t.track_number ',
+                        (id, )).fetchall()
 
     if cd is None:
-        # 指定された CD ID の行が無かった
+        # 指定された CD品番の行が無かった
         return render_template('cd-not-found.html')
 
     # CD の情報をテンプレートへ渡してレンダリングしたものを返す
@@ -251,7 +250,7 @@ def cd_add() -> str:
     """
     CD 追加ページ.
 
-    `http://localhost:5000/cd-add` への GET メソッドによる
+    'http://localhost:5000/cd-add' への GET メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
 
     テンプレート cd-add.html
@@ -269,9 +268,9 @@ def cd_add_execute() -> Response:
     """
     CD 追加実行.
 
-    `http://localhost:5000/cd-add` への POST メソッドによる
+    'http://localhost:5000/cd-add' への POST メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
-    追加する CD の情報が POST パラメータの `title`, `artist`, `price`
+    追加する CD の情報が POST パラメータの'title', 'id', 'series_name', 'order_in_series', 'issued_date'
     に入っている。
 
     データベース接続を得て、POST パラメータの各内容をチェック、
@@ -286,29 +285,32 @@ def cd_add_execute() -> Response:
     con = get_db()
     cur = con.cursor()
 
-    # タイトル取得、チェック
+    # リクエストされた POST パラメータの内容を取り出す
     title = request.form['title']
-    if has_control_character(title):
-        # タイトルに制御文字が含まれる
-        return redirect(url_for('cd_add_results',
-                                code='include-control-charactor'))
-
-    # id取得、チェック
     id = request.form['id']
-    if has_control_character(id):
-        # タイトルに制御文字が含まれる
+    series_name = request.form['series_name']
+    order_in_series = request.form['order_in_series']
+    issued_date = request.form['issued_date']
+
+    # titleのチェック
+    if has_control_character(title):
+        # 制御文字が含まれる
         return redirect(url_for('cd_add_results',
                                 code='include-control-charactor'))
 
-    # series_name取得、チェック
-    series_name = request.form['series_name']
+    # idのチェック
+    if has_control_character(id):
+        # 制御文字が含まれる
+        return redirect(url_for('cd_add_results',
+                                code='include-control-charactor'))
+
+    # series_nameのチェック
     if series_name and has_control_character(series_name):
-      # タイトルに制御文字が含まれる
+      # 制御文字が含まれる
       return redirect(url_for('cd_add_results',
                   code='include-control-charactor'))
 
-    # order_in_series取得、チェック
-    order_in_series = request.form['order_in_series']
+    # order_in_seriesのチェック
     if order_in_series:
       try:
         # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
@@ -318,10 +320,9 @@ def cd_add_execute() -> Response:
         return redirect(url_for('cd_add_results',
                     code='series-number-has-invalid-charactor'))
 
-    # issued_date取得、チェック
-    issued_date = request.form['issued_date']
+    # issued_dateのチェック
     if has_control_character(issued_date):
-        # タイトルに制御文字が含まれる
+        # 制御文字が含まれる
         return redirect(url_for('cd_add_results',
                                 code='include-control-charactor'))
 
@@ -348,7 +349,7 @@ def cd_add_results(code: str) -> str:
     """
     CD 追加結果ページ.
 
-    `http://localhost:5000/cd-add-result/<code>`
+    'http://localhost:5000/cd-add-result/<code>'
     への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
 
     PRG パターンで CD 追加実行の POST 後にリダイレクトされてくる。
@@ -366,10 +367,10 @@ def cd_del(id: str) -> str:
     """
     CD削除確認ページ.
 
-    `http://localhost:5000/cd-del/<id>` への GET メソッドによる
+    'http://localhost:5000/cd-del/<id>' への GET メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
 
-    データベース接続を得て URL 中の `<id>` で指定された CD 情報を取得し、
+    データベース接続を得て URL 中の '<id>' で指定された CD 情報を取得し、
     削除できるなら
     テンプレート cd-del.html
     （CD削除してよいかの確認ページ）
@@ -386,12 +387,12 @@ def cd_del(id: str) -> str:
     cur = con.cursor()
 
     try:
-        # CD番号の存在チェックをする：
-        # cds テーブルで同じCD番号の行を 1 行だけ取り出す
+        # CD品番の存在チェックをする：
+        # cds テーブルで同じCD品番の行を 1 行だけ取り出す
         cd = cur.execute('SELECT * FROM cds WHERE id = ?',
                          (id,)).fetchone()
     except cd is None:
-        # 指定されたCD番号の行が無い
+        # 指定されたCD品番の行が無い
         return render_template('cd-del-results.html',
                                results='指定されたCD番号は存在しません')
 
@@ -402,11 +403,11 @@ def cd_del_execute(id: str) -> Response:
     """
     CD削除実行.
 
-    `http://localhost:5000/cd-del/<id>` への POST メソッドによる
+    'http://localhost:5000/cd-del/<id>' への POST メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
     POST パラメータは無し。
 
-    データベース接続を得て URL 中の `<id>` で指定された CD 情報を取得し、
+    データベース接続を得て URL 中の '<id>' で指定された CD 情報を取得し、
     削除できるならして、
     cd_del_results へ処理結果コードを入れてリダイレクトする。
     （PRG パターンの P を受けて R を返す）
@@ -419,26 +420,22 @@ def cd_del_execute(id: str) -> Response:
     cur = con.cursor()
 
     try:
-        # CD番号の存在チェックをする：
-        # cds テーブルで同じCD番号の行を 1 行だけ取り出す
+        # CD品番の存在チェックをする：
+        # cds テーブルで同じCD品番の行を 1 行だけ取り出す
         cd = cur.execute('SELECT id FROM cds WHERE id = ?',
                          (id,)).fetchone()
     except cd is None:
-        # 指定されたCD番号の行が無い
+        # 指定されたCD品番の行が無い
         return redirect(url_for('cd_del_results',
                                 code='id-does-not-exist'))
 
-    # tracks, tracks_artistsからcd_idに指定したCD番号を持つものを削除し、
-    # cdsから指定したCD品番を持つものを削除
+    # tracks, tracks_artistsからcd_idに指定したCD品番を持つものを削除し、
+    # その後cdsから指定したCD品番を持つものを削除
     try:
         cur.execute('DELETE FROM tracks_artists WHERE cd_id = ?', (id,))
         cur.execute('DELETE FROM tracks WHERE cd_id = ?', (id,))
         cur.execute('DELETE FROM cds WHERE id = ?', (id,))
-    except sqlite3.Error as e:
-        # エラーが発生した場合はロールバック
-        con.rollback()
-        # エラーログを出力（デバッグ用）
-        print(f"Database error: {e}")
+    except sqlite3.Error:
         # データベースエラーが発生
         return redirect(url_for('cd_del_results',
                                 code='database-error'))
@@ -455,7 +452,7 @@ def cd_del_results(code: str) -> str:
     """
     CD削除結果ページ.
 
-    `http://localhost:5000/cd-del-result/<code>`
+    'http://localhost:5000/cd-del-results/<code>'
     への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
 
     PRG パターンでCD削除実行の POST 後にリダイレクトされてくる。
@@ -473,10 +470,10 @@ def cd_edit(id: str) -> str:
     """
     CD 編集ページ.
 
-    `http://localhost:5000/cd-edit/<id>` への GET メソッドによる
+    'http://localhost:5000/cd-edit/<id>' への GET メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
 
-    データベース接続を得て URL 中の `<id>` で指定された CD 情報を取得し、
+    データベース接続を得て URL 中の '<id>' で指定された CD 情報を取得し、
     編集できるなら
     テンプレート cd-edit.html
     （CD 編集フォームがあり、決定ボタンで CD 編集更新の POST ができる）
@@ -503,13 +500,13 @@ def cd_edit_update(id: str) -> Response:
     """
     CD編集更新.
 
-    `http://localhost:5000/cd-edit/<id>` への POST メソッドによる
+    'http://localhost:5000/cd-edit/<id>' への POST メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
     編集後の CD の情報が POST パラメータの
-    `id`, `title`, `series_name`, `order_in_series`, `issued_date`
+    'id', 'title', 'series_name', 'order_in_series', 'issued_date'
     に入っている（CD番号は編集できない）。
 
-    データベース接続を得て URL 中の `<id>` で指定された CD 情報を取得し、
+    データベース接続を得て URL 中の '<id>' で指定された CD 情報を取得し、
     編集できるなら、POST パラメータの CD 情報をチェック、
     問題なければ CD 情報を更新し、
     テンプレート cd-edit-results.html
@@ -523,13 +520,12 @@ def cd_edit_update(id: str) -> Response:
     con = get_db()
     cur = con.cursor()
 
-
-    # CD ID の存在チェックをする：
-    # cds テーブルで同じ CD ID の行を 1 行だけ取り出す
+    # CD品番 の存在チェックをする：
+    # cds テーブルで同じ CD品番 の行を 1 行だけ取り出す
     cd = cur.execute('SELECT id FROM cds WHERE id = ?',
                            (id,)).fetchone()
     if cd is None:
-        # 指定された CD ID の行が無い
+        # 指定された CD品番 の行が無い
         return redirect(url_for('cd_edit_results',
                                 code='id-does-not-exist'))
 
@@ -540,30 +536,28 @@ def cd_edit_update(id: str) -> Response:
     issued_date = request.form['issued_date']
 
     if has_control_character(title):
-            # タイトルに制御文字が含まれる
+            # 制御文字が含まれる
             return redirect(url_for('song_edit_results',
                                     code='include-control-charactor'))
 
     if has_control_character(series_name):
-            # タイトルに制御文字が含まれる
+            # 制御文字が含まれる
             return redirect(url_for('song_edit_results',
                                     code='include-control-charactor'))
 
     if has_control_character(issued_date):
-            # タイトルに制御文字が含まれる
+            # 制御文字が含まれる
             return redirect(url_for('song_edit_results',
                                     code='include-control-charactor'))
 
     if order_in_series_str:
-      try:
-        # 文字列型で渡された CD ID を整数型へ変換する
-        order_in_series = int(order_in_series_str)
-      except ValueError:
-        # シリーズ通し番号が整数型へ変換できない
-        return render_template('cd-edit-results.html',
-                    results='シリーズ通し番号は数値で指定してください')
-
-    if order_in_series_str:
+        try:
+            # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
+            order_in_series = int(order_in_series_str)
+        except ValueError:
+            # シリーズ通し番号が整数型へ変換できない
+            return render_template('cd-edit-results.html',
+                        results='シリーズ通し番号は数値で指定してください')
         # データベースを更新
         try:
         # cds テーブルの指定された行のパラメータを更新
@@ -578,7 +572,6 @@ def cd_edit_update(id: str) -> Response:
             # データベースエラーが発生
             return redirect(url_for('cd_edit_results',
                                     code='database-error'))
-
     else:
         # データベースを更新
         try:
@@ -606,7 +599,7 @@ def cd_edit_results(code: str) -> str:
     """
     CD編集結果ページ.
 
-    `http://localhost:5000/cd-edit-result/<code>`
+    'http://localhost:5000/cd-edit-results/<code>'
     への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
 
     PRG パターンでCD編集更新の POST 後にリダイレクトされてくる。
@@ -619,17 +612,17 @@ def cd_edit_results(code: str) -> str:
     return render_template('cd-edit-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
-# 楽曲関連
+# 楽曲関連ページ
 @app.route('/songs')
 def songs() -> str:
     """
-    CD 一覧のページ（全件）.
+    楽曲一覧のページ（全件）.
 
-    `http://localhost:5000/cds` への GET メソッドによる
+    'http://localhost:5000/cds' への GET メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
 
-    データベース接続を得て、SELECT 文で全 CD 一覧を取得し、
-    テンプレート cds.html へ一覧を渡して埋め込んでレンダリングして返す。
+    データベース接続を得て、SELECT 文で全楽曲一覧を取得し、
+    テンプレート songs.html へ一覧を渡して埋め込んでレンダリングして返す。
 
     Returns:
       str: ページのコンテンツ
@@ -637,7 +630,7 @@ def songs() -> str:
     # データベース接続してカーソルを得る
     cur = get_db().cursor()
 
-    # cds テーブルの全行から CD の情報を取り出した一覧を取得
+    # songs テーブルの全行から楽曲の情報を取り出した一覧を取得
     songs = cur.execute('SELECT * FROM songs').fetchall()
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
@@ -646,16 +639,15 @@ def songs() -> str:
 @app.route('/songs', methods=['POST'])
 def songs_filtered() -> str:
     """
-    CD 一覧のページ（絞り込み）.
+    楽曲一覧のページ（絞り込み）.
 
-    `http://localhost:5000/cds` への POST メソッドによる
+    'http://localhost:5000/cds' への POST メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
-    絞り込み用のタイトルが POST のパラメータ `title_filter` に入っている。
+    絞り込み用のタイトルが POST のパラメータ 'title_filter' に入っている。
 
     データベース接続を得て、
-    SELECT 文でリクエストされたタイトルで絞り込んだ CD 一覧を取得、
-    テンプレート cds.html へ一覧を渡して埋め込んでレンダリングして返す。
-    （これは PRG パターンではない）
+    SELECT 文でリクエストされたタイトルで絞り込んだ 楽曲 一覧を取得、
+    テンプレート songs.html へ一覧を渡して埋め込んでレンダリングして返す。
 
     Returns:
       str: ページのコンテンツ
@@ -663,8 +655,8 @@ def songs_filtered() -> str:
     # データベース接続してカーソルを得る
     cur = get_db().cursor()
 
-    # cds テーブルからタイトルで絞り込み、
-    # 得られた全行から CD の情報を取り出した一覧を取得
+    # songs テーブルからタイトルで絞り込み、
+    # 得られた全行から 楽曲 の情報を取り出した一覧を取得
     songs = cur.execute('SELECT * FROM songs WHERE title LIKE ?', (request.form['title_filter'],)).fetchall()
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
@@ -673,17 +665,17 @@ def songs_filtered() -> str:
 @app.route('/song/<id>')
 def song(id: str) -> str:
     """
-    CD 詳細ページ.
+    楽曲 詳細ページ.
 
-    `http://localhost:5000/cd/<id>` への GET メソッドによる
+    'http://localhost:5000/cd/<id>' への GET メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
 
     データベース接続を得て、
-    URL 中の `<id>` で指定された CD の全情報を取得し、
-    テンプレート cd.html へ情報を渡して埋め込んでレンダリングして返す。
-    指定された CD が見つからない場合は
-    テンプレート cd-not-found.html
-    （CD が見つからない旨が記載されている）
+    URL 中の '<id>' で指定された 楽曲 の全情報を取得し、
+    テンプレート song.html へ情報を渡して埋め込んでレンダリングして返す。
+    指定された 楽曲 が見つからない場合は
+    テンプレート song-not-found.html
+    （楽曲 が見つからない旨が記載されている）
     をレンダリングして返す。
 
     Returns:
@@ -721,13 +713,13 @@ def song(id: str) -> str:
 @app.route('/song-add')
 def song_add() -> str:
     """
-    CD 追加ページ.
+    楽曲 追加ページ.
 
-    `http://localhost:5000/cd-add` への GET メソッドによる
+    'http://localhost:5000/cd-add' への GET メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
 
-    テンプレート cd-add.html
-    （CD 追加フォームがあり、追加ボタンで CD 追加実行の POST ができる）
+    テンプレート song-add.html
+    （楽曲 追加フォームがあり、追加ボタンで 楽曲 追加実行の POST ができる）
     をレンダリングして返す。
 
     Returns:
@@ -750,7 +742,7 @@ def song_add_execute() -> Response:
     # 文字列型で渡されたIDを整数型へ変換する
         id = int(id_str)
     except ValueError:
-    # シリーズ通し番号が整数型へ変換できない
+    # 楽曲IDが整数型へ変換できない
         return redirect(url_for('song_add_results',
                 code='id-has-invalid-charactor'))
 
@@ -762,13 +754,13 @@ def song_add_execute() -> Response:
                                 code='id-already-exists'))
     # タイトルチェック
     if has_control_character(title):
-        # タイトルに制御文字が含まれる
+        # 制御文字が含まれる
         return redirect(url_for('song_add_results',
                                 code='include-control-charactor'))
 
     # データベースへ楽曲を追加
     try:
-        # cds テーブルに指定されたパラメータの行を挿入
+        # songs テーブルに指定されたパラメータの行を挿入
         cur.execute('INSERT INTO songs '
                     '(id, title) '
                     'VALUES (?, ?)',
@@ -787,13 +779,13 @@ def song_add_execute() -> Response:
 @app.route('/song-add-results/<code>')
 def song_add_results(code: str) -> str:
     """
-    CD 追加結果ページ.
+    楽曲 追加結果ページ.
 
-    `http://localhost:5000/cd-add-result/<code>`
+    'http://localhost:5000/cd-add-result/<code>'
     への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
 
-    PRG パターンで CD 追加実行の POST 後にリダイレクトされてくる。
-    テンプレート cd-add-results.html
+    PRG パターンで 楽曲 追加実行の POST 後にリダイレクトされてくる。
+    テンプレート song-add-results.html
     へ処理結果コード code に基づいたメッセージを渡してレンダリングして返す。
 
     Returns:
@@ -816,7 +808,7 @@ def song_del(id: str) -> str:
         song = cur.execute('SELECT * FROM songs WHERE id = ?',
                          (id,)).fetchone()
     except song is None:
-        # 指定されたCD番号の行が無い
+        # 指定された楽曲IDの行が無い
         return render_template('song-del-results.html',
                                results='指定された楽曲は存在しません')
 
@@ -839,14 +831,14 @@ def song_del_execute(id: str) -> Response:
                                 code='id-does-not-exist'))
 
     try:
-        # cds テーブルの指定された行を削除
+        # songs テーブルの指定された行を削除
         cur.execute('DELETE FROM songs WHERE id = ?', (id,))
     except sqlite3.Error:
         # データベースエラーが発生
         return redirect(url_for('song_del_results',
                                 code='database-error'))
 
-
+    # コミット
     con.commit()
 
     # 楽曲削除完了
@@ -855,6 +847,19 @@ def song_del_execute(id: str) -> Response:
 
 @app.route('/song-del-results/<code>')
 def song_del_results(code: str) -> str:
+    """
+    楽曲削除結果ページ.
+
+    'http://localhost:5000/song-del-results/<code>'
+    への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
+
+    PRG パターンで楽曲削除実行の POST 後にリダイレクトされてくる。
+    テンプレート song-del-results.html
+    へ処理結果コード code に基づいたメッセージを渡してレンダリングして返す。
+
+    Returns:
+      str: ページのコンテンツ
+    """
     return render_template('song-del-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
@@ -887,15 +892,15 @@ def song_edit_update(id: str) -> Response:
     # リクエストされた POST パラメータの内容を取り出す
     title = request.form['title']
 
-    # タイトルチェック
+    # タイトルのチェック
     if has_control_character(title):
-        # タイトルに制御文字が含まれる
+        # 制御文字が含まれる
         return redirect(url_for('song_edit_results',
                                 code='include-control-charactor'))
 
     # データベースを更新
     try:
-        # cds テーブルの指定された行のパラメータを更新
+        # songs テーブルの指定された行のパラメータを更新
         cur.execute('UPDATE songs '
                     'SET title = ? '
                     'WHERE id = ?',
@@ -916,8 +921,7 @@ def song_edit_results(code: str) -> str:
     return render_template('song-edit-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
-# 未完成です
-# トラック
+# トラック関連ページ
 @app.route('/track-add/<id>')
 def track_add(id: str) -> str:
     con = get_db()
@@ -951,14 +955,14 @@ def track_add_execute(id: str) -> Response:
         # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
         song_id = int(song_id_str)
     except ValueError:
-    # シリーズ通し番号が整数型へ変換できない
+        # シリーズ通し番号が整数型へ変換できない
         return redirect(url_for('track_add_results',
                     code='song-id-has-invalid-charactor'))
     try:
         # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
         artist_id = int(artist_id_str)
     except ValueError:
-    # シリーズ通し番号が整数型へ変換できない
+        # シリーズ通し番号が整数型へ変換できない
         return redirect(url_for('track_add_results',
                     code='artist-id-has-invalid-charactor'))
 
@@ -992,7 +996,7 @@ def track_add_execute(id: str) -> Response:
                                     code='database-error'))
 
     try:
-            # tracks テーブルの指定された行のパラメータを更新
+        # tracks_artists テーブルの指定された行のパラメータを更新
         cur.execute(
                     'INSERT INTO tracks_artists '
                     '(cd_id, track_number, artist_id) '
@@ -1016,9 +1020,9 @@ def track_add_results(code: str) -> str:
 @app.route('/tracks-del/<id>')
 def tracks_del(id: str) -> str:
     """
-    tracks削除確認ページ.
+    トラック削除確認ページ.
 
-    `http://localhost:5000/cd-del/<id>` への GET メソッドによる
+    'http://localhost:5000/tracks-del/<id>' への GET メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
 
     Returns:
@@ -1043,7 +1047,7 @@ def tracks_del(id: str) -> str:
 @app.route('/tracks-del/<id>', methods=['POST'])
 def tracks_del_execute(id: str) -> Response:
     """
-    tracks削除実行.
+    トラック削除実行.
 
     Returns:
       Response: リダイレクト情報
@@ -1052,7 +1056,7 @@ def tracks_del_execute(id: str) -> Response:
     con = get_db()
     cur = con.cursor()
 
-    # tracksからtracks_cd_idに指定したCD番号を持つものを削除
+    # tracks_artists, tracksからtracks_cd_idに指定したCD品番を持つものを削除
     try:
         cur.execute('DELETE FROM tracks_artists WHERE cd_id = ?', (id,))
         cur.execute('DELETE FROM tracks WHERE cd_id = ?', (id,))
@@ -1061,25 +1065,23 @@ def tracks_del_execute(id: str) -> Response:
         return redirect(url_for('tracks_del_results',
                                 code='database-error'))
 
-
-
-
+    # コミット
     con.commit()
 
-    # tracks削除完了
+    # トラック削除完了
     return redirect(url_for('tracks_del_results',
                             code='deleted'))
 
 @app.route('/tracks-del-results/<code>')
 def tracks_del_results(code: str) -> str:
     """
-    CD削除結果ページ.
+    トラック削除結果ページ.
 
-    `http://localhost:5000/cd-del-result/<code>`
+    'http://localhost:5000/tracks-del-result/<code>'
     への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
 
     PRG パターンでCD削除実行の POST 後にリダイレクトされてくる。
-    テンプレート cd-del-results.html
+    テンプレート tracks-del-results.html
     へ処理結果コード code に基づいたメッセージを渡してレンダリングして返す。
 
     Returns:
@@ -1088,13 +1090,9 @@ def tracks_del_results(code: str) -> str:
     return render_template('tracks-del-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
-
-
-
-# アーティスト
+# アーティスト関連ページ
 @app.route('/artists')
 def artists() -> str:
-
 
     cur = get_db().cursor()
 
@@ -1116,10 +1114,9 @@ def artist(id: str) -> str:
     con = get_db()
     cur = con.cursor()
 
-    # cds テーブルから指定された CD ID の行を 1 行だけ取り出す
-    artist = cur.execute('''
-      SELECT * FROM artists WHERE id = ?
-      ''',(id,)).fetchone()
+    # artists テーブルから指定された アーティストID の行を 1 行だけ取り出す
+    artist = cur.execute('SELECT * FROM artists WHERE id = ? ',
+                         (id,)).fetchone()
     if artist is None:
         # 指定された アーティストID の行が無かった
         return render_template('index.html')
@@ -1155,8 +1152,11 @@ def artist_add_execute() -> Response:
     con = get_db()
     cur = con.cursor()
 
-    # id取得、チェック
     id = request.form['id']
+    name = request.form['name']
+    group_name = request.form['group_name']
+
+    # idのチェック
     if id:
       try:
         # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
@@ -1166,23 +1166,21 @@ def artist_add_execute() -> Response:
         return redirect(url_for('artist_add_results',
                     code='id-has-invalid-charactor'))
 
-    # アーティスト名取得、チェック
-    name = request.form['name']
+    # アーティスト名のチェック
     if has_control_character(name):
-        # アーティスト名に制御文字が含まれる
+        # 制御文字が含まれる
         return redirect(url_for('artist_add_results',
                                 code='include-control-charactor'))
 
-    # issued_date取得、チェック
-    group_name = request.form['group_name']
+    # issued_dateのチェック
     if has_control_character(group_name):
-        # タイトルに制御文字が含まれる
+        # 制御文字が含まれる
         return redirect(url_for('cd_add_results',
                                 code='include-control-charactor'))
 
     # データベースへアーティストを追加
     try:
-        # cds テーブルに指定されたパラメータの行を挿入
+        # artists テーブルに指定されたパラメータの行を挿入
         cur.execute('INSERT INTO artists '
                     '(id, name, group_name) '
                     'VALUES (?, ?, ?)',
@@ -1194,7 +1192,7 @@ def artist_add_execute() -> Response:
     # コミット（データベース更新処理を確定）
     con.commit()
 
-    # CD追加完了
+    # アーティスト追加完了
     return redirect(url_for('artist_add_results',
                             code='artist-added'))
 
@@ -1210,12 +1208,12 @@ def artist_del(id: str) -> str:
     cur = con.cursor()
 
     try:
-        # CD番号の存在チェックをする：
-        # cds テーブルで同じCD番号の行を 1 行だけ取り出す
+        # アーティストIDの存在チェックをする：
+        # artists テーブルで同じCD番号の行を 1 行だけ取り出す
         artist = cur.execute('SELECT * FROM artists WHERE id = ?',
-                         (id,)).fetchone()
+                             (id,)).fetchone()
     except artist is None:
-        # 指定されたCD番号の行が無い
+        # 指定されたアーティストIDの行が無い
         return render_template('artist-del-results.html',
                                results='指定されたアーティストは存在しません')
 
@@ -1227,20 +1225,18 @@ def artist_del_execute(id: str) -> Response:
     con = get_db()
     cur = con.cursor()
 
-
     try:
-        # CD番号の存在チェックをする：
-        # cds テーブルで同じCD番号の行を 1 行だけ取り出す
+        # IDの存在チェックをする：
+        # artists テーブルで同じCD番号の行を 1 行だけ取り出す
         artist = cur.execute('SELECT id FROM artists WHERE id = ?',
                          (id,)).fetchone()
     except artist is None:
-        # 指定されたCD番号の行が無い
+        # 指定されたIDの行が無い
         return redirect(url_for('artist_del_results',
                                 code='id-does-not-exist'))
 
-
     try:
-        # cds テーブルの指定された行を削除
+        # artists テーブルの指定された行を削除
         cur.execute('DELETE FROM artists WHERE id = ?', (id,))
     except sqlite3.Error:
         # データベースエラーが発生
@@ -1248,20 +1244,20 @@ def artist_del_execute(id: str) -> Response:
                                 code='database-error'))
     con.commit()
 
-    # CD削除完了
+    # アーティスト削除完了
     return redirect(url_for('artist_del_results',
                             code='deleted'))
 
 @app.route('/artist-del-results/<code>')
 def artist_del_results(code: str) -> str:
     """
-    CD削除結果ページ.
+    アーティスト削除結果ページ.
 
-    `http://localhost:5000/cd-del-result/<code>`
+    'http://localhost:5000/artist-del-result/<code>'
     への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
 
-    PRG パターンでCD削除実行の POST 後にリダイレクトされてくる。
-    テンプレート cd-del-results.html
+    PRG パターンでアーティスト削除実行の POST 後にリダイレクトされてくる。
+    テンプレート artist-del-results.html
     へ処理結果コード code に基づいたメッセージを渡してレンダリングして返す。
 
     Returns:
@@ -1279,7 +1275,7 @@ def artist_edit(id: str) -> str:
     artist = cur.execute('SELECT * FROM artists WHERE id = ?',
                         (id,)).fetchone()
 
-    # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
+    # 編集対象の アーティスト 情報をテンプレートへ渡してレンダリングしたものを返す
     return render_template('artist-edit.html', artist=artist)
 
 @app.route('/artist-edit/<id>', methods=['POST'])
@@ -1288,13 +1284,12 @@ def artist_edit_update(id: str) -> Response:
     con = get_db()
     cur = con.cursor()
 
-
-    # CD ID の存在チェックをする：
-    # cds テーブルで同じ CD ID の行を 1 行だけ取り出す
+    # artist の存在チェックをする：
+    # artists テーブルで同じ ID の行を 1 行だけ取り出す
     artist = cur.execute('SELECT id FROM artists WHERE id = ?',
                            (id,)).fetchone()
     if artist is None:
-        # 指定された CD ID の行が無い
+        # 指定された ID の行が無い
         return redirect(url_for('artist_edit_results',
                                 code='id-does-not-exist'))
 
@@ -1303,12 +1298,12 @@ def artist_edit_update(id: str) -> Response:
     group_name = request.form['group_name']
 
     if has_control_character(name):
-            # タイトルに制御文字が含まれる
+            # 制御文字が含まれる
             return redirect(url_for('song_edit_results',
                                     code='include-control-charactor'))
 
     if has_control_character(group_name):
-            # タイトルに制御文字が含まれる
+            # 制御文字が含まれる
             return redirect(url_for('song_edit_results',
                                     code='include-control-charactor'))
 
@@ -1335,16 +1330,13 @@ def artist_edit_results(code: str) -> str:
     return render_template('artist-edit-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
-
-
-
-# コンサート
+# コンサート関連ページ
 @app.route('/concerts')
 def concerts() -> str:
     # データベース接続してカーソルを得る
     cur = get_db().cursor()
 
-    # cds テーブルの全行から CD の情報を取り出した一覧を取得
+    # concerts テーブルの全行から コンサート の情報を取り出した一覧を取得
     concerts = cur.execute('SELECT * FROM concerts ORDER BY held_date').fetchall()
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
@@ -1355,8 +1347,8 @@ def concerts_filtered() -> str:
     # データベース接続してカーソルを得る
     cur = get_db().cursor()
 
-    # cds テーブルからタイトルで絞り込み、
-    # 得られた全行から CD の情報を取り出した一覧を取得
+    # concerts テーブルからタイトルで絞り込み、
+    # 得られた全行から コンサート の情報を取り出した一覧を取得
     concerts = cur.execute('SELECT * FROM concerts WHERE title LIKE ? ORDER BY held_date', (request.form['title_filter'],)).fetchall()
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
@@ -1368,11 +1360,11 @@ def concert(id: str) -> str:
     con = get_db()
     cur = con.cursor()
 
-    # songs テーブルから指定された song_id の行を 1 行だけ取り出す
+    # concerts テーブルから指定された ID の行を 1 行だけ取り出す
     concert = cur.execute('SELECT * FROM concerts WHERE id = ?', (id,)).fetchone()
 
     if concert is None:
-        # 指定された song_id の行が無かった
+        # 指定された ID の行が無かった
         return render_template('concert-not-found.html')
 
     performances = cur.execute(
@@ -1383,8 +1375,8 @@ def concert(id: str) -> str:
                         'JOIN artists a ON a.id = ap.artist_id '
                         'WHERE p.concert_id = ? '
                         'GROUP BY p.number_of_order, s.title '
-                        'ORDER BY p.number_of_order'
-                        , (id,)).fetchall()
+                        'ORDER BY p.number_of_order',
+                        (id,)).fetchall()
 
     # 楽曲の情報をテンプレートへ渡してレンダリングしたものを返す
     return render_template('concert.html', concert=concert, performances=performances)
@@ -1413,7 +1405,7 @@ def concert_add_execute() -> Response:
         return redirect(url_for('concert_add_results',
                 code='id-has-invalid-charactor'))
 
-    concert = cur.execute('SELECT id FROM concerts WHERE id = ?',\
+    concert = cur.execute('SELECT id FROM concerts WHERE id = ?',
                            (id,)).fetchone()
 
     if concert is not None:
@@ -1422,19 +1414,19 @@ def concert_add_execute() -> Response:
                                 code='id-already-exists'))
     # タイトルチェック
     if has_control_character(title):
-        # タイトルに制御文字が含まれる
+        # 制御文字が含まれる
         return redirect(url_for('concert_add_results',
                                 code='include-control-charactor'))
 
     # 開催日チェック
     if has_control_character(held_date):
-        # タイトルに制御文字が含まれる
+        # 制御文字が含まれる
         return redirect(url_for('concert_add_results',
                                 code='include-control-charactor'))
 
     # データベースへ楽曲を追加
     try:
-        # cds テーブルに指定されたパラメータの行を挿入
+        # concerts テーブルに指定されたパラメータの行を挿入
         cur.execute('INSERT INTO concerts '
                     '(id, title, held_date) '
                     'VALUES (?, ?, ?)',
@@ -1446,7 +1438,7 @@ def concert_add_execute() -> Response:
     # コミット（データベース更新処理を確定）
     con.commit()
 
-    # 楽曲追加完了
+    # コンサート追加完了
     return redirect(url_for('concert_add_results',
                             code='concert-added'))
 
@@ -1465,12 +1457,12 @@ def concert_del(id: str) -> str:
     id = int(id)
 
     try:
-        # 楽曲IDの存在チェックをする：
-        # songs テーブルで同じ楽曲IDの行を 1 行だけ取り出す
+        # コンサートIDの存在チェックをする：
+        # concerts テーブルで同じIDの行を 1 行だけ取り出す
         concert = cur.execute('SELECT id FROM concerts WHERE id = ?',
                          (id,)).fetchone()
     except concert is None:
-        # 指定されたCD番号の行が無い
+        # 指定されたIDの行が無い
         return render_template('concert-del-results.html',
                                results='指定されたコンサートは存在しません')
 
@@ -1486,8 +1478,8 @@ def concert_del_execute(id: str) -> Response:
     id = int(id)
 
     try:
-        # 楽曲IDの存在チェックをする：
-        # songs テーブルで同じ楽曲IDの行を 1 行だけ取り出す
+        # IDの存在チェックをする：
+        # concerts テーブルで同じ楽曲IDの行を 1 行だけ取り出す
         concert = cur.execute('SELECT id FROM concerts WHERE id = ?',
                          (id,)).fetchone()
     except concert is None:
@@ -1496,7 +1488,7 @@ def concert_del_execute(id: str) -> Response:
                                 code='id-does-not-exist'))
 
     try:
-        # cds テーブルの指定された行を削除
+        # artists_performances, performances, concerts から指定された行を削除
         cur.execute('DELETE FROM artists_performances WHERE concert_id = ?', (id,))
         cur.execute('DELETE FROM performances WHERE concert_id = ?', (id,))
         cur.execute('DELETE FROM concerts WHERE id = ?', (id,))
@@ -1507,7 +1499,7 @@ def concert_del_execute(id: str) -> Response:
 
     con.commit()
 
-    # 楽曲削除完了
+    # コンサート削除完了
     return redirect(url_for('concert_del_results',
                             code='deleted'))
 
@@ -1539,7 +1531,7 @@ def concert_edit_update(id: str) -> Response:
     concert = cur.execute('SELECT id FROM concerts WHERE id = ?',
                            (id,)).fetchone()
     if concert is None:
-        # 指定された CD ID の行が無い
+        # 指定された ID の行が無い
         return redirect(url_for('concert_edit_results',
                                 code='id-does-not-exist'))
 
@@ -1548,12 +1540,12 @@ def concert_edit_update(id: str) -> Response:
     held_date = request.form['held_date']
 
     if has_control_character(title):
-            # タイトルに制御文字が含まれる
+            # 制御文字が含まれる
             return redirect(url_for('concert_edit_results',
                                     code='include-control-charactor'))
 
     if has_control_character(held_date):
-            # タイトルに制御文字が含まれる
+            # 制御文字が含まれる
             return redirect(url_for('concert_edit_results',
                                     code='include-control-charactor'))
 
@@ -1572,7 +1564,7 @@ def concert_edit_update(id: str) -> Response:
     # コミット（データベース更新処理を確定）
     con.commit()
 
-    # CD編集完了
+    # コンサート編集完了
     return redirect(url_for('concert_edit_results',
                             code='updated'))
 
@@ -1584,7 +1576,7 @@ def concert_edit_results(code: str) -> str:
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
 
-# セットリスト
+# セットリスト関連ページ
 @app.route('/setlist-add/<id>')
 def setlist_add(id: str) -> str:
     con = get_db()
@@ -1609,39 +1601,38 @@ def setlist_add_execute(id: str) -> Response:
         # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
         concert_id = int(concert_id_str)
     except ValueError:
-    # シリーズ通し番号が整数型へ変換できない
+    # セットリスト番号が整数型へ変換できない
         return redirect(url_for('setlist_add_results',
                     code='id-has-invalid-charactor'))
 
     try:
-        # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
+        # 文字列型で渡されたセットリスト番号を整数型へ変換する
         number_of_order = int(number_of_order_str)
     except ValueError:
-    # シリーズ通し番号が整数型へ変換できない
+    # セットリスト番号が整数型へ変換できない
         return redirect(url_for('setlist_add_results',
                     code='number-of-order-has-invalid-charactor'))
 
-# 楽曲IDの存在チェックをする：
-    # songs テーブルで同じ楽曲IDの行を 1 行だけ取り出す
+    # 楽曲IDの存在チェックをする：
+    # songs テーブルで同じIDの行を 1 行だけ取り出す
     song = cur.execute('SELECT id FROM songs WHERE id = ?',
                          (song_id,)).fetchone()
     if song is None:
-        # 指定された楽曲IDの行が無い
+        # 指定されたIDの行が無い
         return redirect(url_for('setlist_add_results',
                                 code='song-does-not-exist'))
 
     # アーティストIDの存在チェックをする：
-    # artists テーブルで同じ楽曲IDの行を 1 行だけ取り出す
+    # artists テーブルで同じIDの行を 1 行だけ取り出す
     artist = cur.execute('SELECT id FROM artists WHERE id = ?',
                          (artist_id,)).fetchone()
     if artist is None:
-        # 指定された楽曲IDの行が無い
+        # 指定されたIDの行が無い
         return redirect(url_for('setlist_add_results',
                                 code='artist-does-not-exist'))
 
-
     try:
-        # tracks テーブルの指定された行のパラメータを更新
+        # performances, artists_performances テーブルの指定された行のパラメータを更新
         cur.execute(
                     'INSERT INTO performances '
                     '(concert_id, number_of_order, song_id) '
@@ -1673,7 +1664,7 @@ def setlist_del(id: str) -> str:
     """
     setlist削除確認ページ.
 
-    `http://localhost:5000/cd-del/<id>` への GET メソッドによる
+    'http://localhost:5000/setlist-del/<id>' への GET メソッドによる
     リクエストがあった時に Flask が呼ぶ関数。
 
     Returns:
@@ -1686,7 +1677,7 @@ def setlist_del(id: str) -> str:
     concert = cur.execute('SELECT * FROM concerts WHERE id = ?',
                          (id,)).fetchone()
     if concert is None:
-        # 指定されたCD番号の行が無い
+        # 指定されたIDの行が無い
         return render_template('setlist-del-results.html',
                                results='指定されたコンサートは存在しません')
 
@@ -1704,7 +1695,7 @@ def setlist_del_execute(id: str) -> Response:
     con = get_db()
     cur = con.cursor()
 
-    # tracksからtracks_cd_idに指定したCD番号を持つものを削除
+    # artists_performances, performances からconcert_idに指定したCD番号を持つものを削除
     try:
         cur.execute('DELETE FROM artists_performances WHERE concert_id = ?', (id,))
         cur.execute('DELETE FROM performances WHERE concert_id = ?', (id,))
@@ -1714,10 +1705,10 @@ def setlist_del_execute(id: str) -> Response:
         return redirect(url_for('setlist_del_results',
                                 code='database-error'))
 
-
+    # コミット
     con.commit()
 
-    # tracks削除完了
+    # セットリスト削除完了
     return redirect(url_for('setlist_del_results',
                             code='deleted'))
 
@@ -1725,13 +1716,13 @@ def setlist_del_execute(id: str) -> Response:
 @app.route('/setlist-del-results/<code>')
 def setlist_del_results(code: str) -> str:
     """
-    CD削除結果ページ.
+    セットリスト削除結果ページ.
 
-    `http://localhost:5000/cd-del-result/<code>`
+    'http://localhost:5000/setlist-del-result/<code>'
     への GET メソッドによるリクエストがあった時に Flask が呼ぶ関数。
 
     PRG パターンでCD削除実行の POST 後にリダイレクトされてくる。
-    テンプレート cd-del-results.html
+    テンプレート setlist-del-results.html
     へ処理結果コード code に基づいたメッセージを渡してレンダリングして返す。
 
     Returns:
