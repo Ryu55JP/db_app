@@ -10,7 +10,7 @@
               action="{{url_for('concert_edit', id=concert.id)}}">
           コンサートID: {{concert.id}}<br>
           コンサートタイトル: <input type="text" name="title" value="{{concert.title}}"><br>
-          開催日: <input type="text" name="held_date"
+          開催日: <input type="date" name="held_date"
                       value="{{concert.held_date}}"><br>
           <input type="submit" value="決定">
         </form>
