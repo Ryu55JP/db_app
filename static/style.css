@@ -52,10 +52,20 @@ form {
 
 ol {
     margin-left: 5%;
+    line-height: 25px;
+}
+
+ul {
+    margin-left: 5%;
+    line-height: 25px;
 }
 
 a.index {
     text-decoration: none;
     color: blue;
     margin-left: 5%;
+}
+
+a.edits {
+    margin-left: 9%;
 }

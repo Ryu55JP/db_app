@@ -22,7 +22,7 @@
       </p>
       {% for song in songs %}
         <p>
-          <a href="{{ url_for('song', id=song.id) }}" style="color: black;">{{ song.title or 'タイトルなし' }}</a>
+          <a href="{{ url_for('song', id=song.id) }}">{{ song.title or 'タイトルなし' }}</a>
         </p>
       {% endfor %}
     <p>
@@ -30,5 +30,13 @@
       <hr style="margin-top: 20px; margin-bottom: 20px;">
       <a href="{{url_for('index')}}">TOP</a>
     </p>
+    <footer>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('index')}}" style="margin-left: 20%;">TOP</a>
+      <a href="{{url_for('index')}}" style="margin-left: 5%;">CD</a>
+      <a href="{{url_for('index')}}" style="margin-left: 5%;">楽曲</a>
+      <a href="{{url_for('index')}}" style="margin-left: 5%;">アーティスト</a>
+      <a href="{{url_for('index')}}" style="margin-left: 5%;">コンサート</a>
+    </footer>
   </body>
 </html>

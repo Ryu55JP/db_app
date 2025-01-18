@@ -23,7 +23,7 @@
     <h2>収録曲</h2>
       <ol>
         {% for song in songs %}
-          <li><a href="{{url_for('song', id=song.song_id)}}" style="color: black;">{{song.title}}</a>&emsp;歌: {{song.artists}}
+          <li><a href="{{url_for('song', id=song.song_id)}}" >{{song.title}}</a>&emsp;歌: {{song.artists}}
         {% endfor %}
       </ol>
       <p>
@@ -37,5 +37,13 @@
       <a href="{{url_for('cds')}}">CD一覧に戻る</a><br>
       <a href="{{url_for('index')}}">TOP</a>
     </p>
+    <footer>
+      <hr style="margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('index')}}" style="margin-left: 20%;">TOP</a>
+      <a href="{{url_for('index')}}" style="margin-left: 5%;">CD</a>
+      <a href="{{url_for('index')}}" style="margin-left: 5%;">楽曲</a>
+      <a href="{{url_for('index')}}" style="margin-left: 5%;">アーティスト</a>
+      <a href="{{url_for('index')}}" style="margin-left: 5%;">コンサート</a>
+    </footer>
   </body>
 </html>
