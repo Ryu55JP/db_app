@@ -8,11 +8,12 @@
   }
 
 * {
-    font-family: "Helvetica Neue",
-    Arial,
+    font-family:
     "Hiragino Kaku Gothic ProN",
     "Hiragino Sans",
     Meiryo,
+    "Helvetica Neue",
+    Arial,
     sans-serif;
 }
 
@@ -22,8 +23,9 @@ body {
 
 header {
     color: white;
+    text-align: center;
     background-color: #8dbaff;
-    text-indent: 1em;
+    opacity: 0.95;
     position: sticky;
     left: 0;
     right: 0;
@@ -33,15 +35,21 @@ header {
         color: #e0e0ff;
         text-decoration: none;
       }
+
 }
 
 header a {
     color: white;
     text-decoration: none;
+    font-size: 40px;
 }
 
 h1 {
     text-indent: 3%;
+}
+
+header h1 {
+    text-indent: 0;
 }
 
 h2 {
@@ -58,6 +66,22 @@ a {
     margin-left: 5%;
 }
 
+a.edits {
+    margin-left: 9%;
+}
+
+input.del {
+    color: red;
+    margin-left: 10%;
+    font-size: 15px;
+}
+
+input {
+    color: black;
+    margin-left: 5%;
+    font-size: 15px;
+}
+
 form {
     margin-left: 5%;
 }
@@ -70,8 +94,4 @@ ol {
 ul {
     margin-left: 5%;
     line-height: 25px;
-}
-
-a.edits {
-    margin-left: 9%;
 }

@@ -13,14 +13,13 @@
         {{results}}
       </p>
       <a href="{{url_for('artist_add')}}">さらにアーティストを追加</a><br>
-      <br>
-    <footer>
-      <hr style="margin-top: 20px; margin-bottom: 20px;">
-      <a href="{{url_for('index')}}" style="margin-left: 20%;">TOP</a>
-      <a href="{{url_for('cds')}}" style="margin-left: 5%;">CD</a>
-      <a href="{{url_for('songs')}}" style="margin-left: 5%;">楽曲</a>
-      <a href="{{url_for('artists')}}" style="margin-left: 5%;">アーティスト</a>
-      <a href="{{url_for('concerts')}}" style="margin-left: 5%;">コンサート</a>
-    </footer>
+      <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
+      <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
+        <a href="{{url_for('index')}}">TOP</a>
+        <a href="{{url_for('cds')}}">CD</a>
+        <a href="{{url_for('songs')}}">楽曲</a>
+        <a href="{{url_for('artists')}}">アーティスト</a>
+        <a href="{{url_for('concerts')}}">コンサート</a>
+      </footer>
   </body>
 </html>
