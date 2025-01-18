@@ -2,6 +2,7 @@
   <head>
     <meta charset="UTF-8">
     <title>トラック追加</title>
+    <link rel="stylesheet" href="../static/style.css"/>
   </head>
   <body>
     <h1>トラック追加</h1>
@@ -9,8 +10,16 @@
         <form method="POST" action="{{url_for('track_add_execute', id=cd.id)}}">
           CDタイトル: {{cd.title}}<br>
           トラック番号: <input type="text" name="track_number"><br>
-          楽曲ID: <input type="text" name="song_id"><br>
-          アーティストID: <input type="text" name="artist_id"><br>
+          楽曲: <select name="song_id">
+            {% for song in songs %}
+              <option value="{{song.id}}">{{song.title}}</option>
+            {% endfor %}
+          </select><br>
+          アーティスト: <select name="artist_id">
+            {% for artist in artists %}
+              <option value="{{artist.id}}">{{artist.name}}</option>
+            {% endfor %}
+          </select><br>
           <input type="hidden" name="id" value="{{cd.id}}">
           <input type="submit" value="追加">
         </form>

@@ -929,8 +929,10 @@ def track_add(id: str) -> str:
 
     # CD タイトルを取得
     cd = cur.execute('SELECT * FROM cds WHERE id = ?', (id,)).fetchone()
+    songs = cur.execute('SELECT * FROM songs').fetchall()
+    artists = cur.execute('SELECT * FROM artists').fetchall()
 
-    return render_template('track-add.html', cd=cd)
+    return render_template('track-add.html', cd=cd, songs=songs, artists=artists)
 
 @app.route('/track-add/<id>', methods=['POST'])
 def track_add_execute(id: str) -> Response:
@@ -1583,7 +1585,10 @@ def setlist_add(id: str) -> str:
     cur = con.cursor()
 
     concert = cur.execute('SELECT * FROM concerts WHERE id = ?', (id,)).fetchone()
-    return render_template('setlist-add.html', concert=concert)
+    songs = cur.execute('SELECT * FROM songs').fetchall()
+    artists = cur.execute('SELECT * FROM artists').fetchall()
+
+    return render_template('setlist-add.html', concert=concert, songs=songs, artists=artists)
 
 
 @app.route('/setlist-add/<id>', methods=['POST'])
