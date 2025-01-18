@@ -1,5 +1,12 @@
 @charset "utf-8";
 
+@media (hover: hover) {
+    a:hover {
+      color: #8dbaff;
+      text-decoration: underline;
+    }
+  }
+
 * {
     font-family: "Helvetica Neue",
     Arial,
@@ -22,6 +29,10 @@ header {
     right: 0;
     top: 0;
     width: 100%;
+    a:hover {
+        color: #e0e0ff;
+        text-decoration: none;
+      }
 }
 
 header a {
@@ -44,6 +55,7 @@ p {
 a {
     text-decoration: none;
     color: blue;
+    margin-left: 5%;
 }
 
 form {
@@ -58,12 +70,6 @@ ol {
 ul {
     margin-left: 5%;
     line-height: 25px;
-}
-
-a.index {
-    text-decoration: none;
-    color: blue;
-    margin-left: 5%;
 }
 
 a.edits {
