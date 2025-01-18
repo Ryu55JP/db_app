@@ -1,0 +1,25 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>セットリスト編集結果</title>
+    <link rel="stylesheet" href="../static/style.css"/>
+    <header>
+      <h1><a href="{{url_for('index')}}">ディスコグラフィ</a></h1>
+    </header>
+  </head>
+  <body>
+    <h1>セットリスト編集結果</h1>
+
+    <p>
+      {{results}}
+    </p>
+    <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
+    <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('index')}}">TOP</a>
+      <a href="{{url_for('cds')}}">CD</a>
+      <a href="{{url_for('songs')}}">楽曲</a>
+      <a href="{{url_for('artists')}}">アーティスト</a>
+      <a href="{{url_for('concerts')}}">コンサート</a>
+    </footer>
+  </body>
+</html>

@@ -25,7 +25,7 @@
         {% endfor %}
       </ol>
       <p>
-        {#<a href="{{url_for('setlist_edit', id=concert.id)}}">セットリストを編集</a><br>#}
+        <a href="{{url_for('setlist_edit', id=concert.id)}}">セットリストを編集</a><br>
         <a href="{{url_for('setlist_add', id=concert.id)}}">セットリストに追加</a>
         <br>
         <a href="{{url_for('setlist_del', id=concert.id)}}">セットリストを全て削除</a><br>

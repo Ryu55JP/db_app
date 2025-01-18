@@ -73,8 +73,11 @@ RESULT_MESSAGES: Final[dict[str, str]] = {
     'コンサートを追加しました',
     'setlist-added':
     'セットリストに追加されました',
-    # tracks
+    # track
     'track-artist-already-exists':
+    '指定されたアーティストはすでに登録済みです',
+    # selist
+    'performance-artist-already-exists':
     '指定されたアーティストはすでに登録済みです',
 }
 
@@ -1108,7 +1111,7 @@ def tracks_edit(id: str) -> str:
 
     # トラック情報を取得
     tracks = cur.execute(
-        'SELECT t.track_number, s.title AS song_title, a.name AS artist_name, t.song_id, ta.artist_id '
+        'SELECT t.track_number, t.song_id, ta.artist_id '
         'FROM tracks t '
         'JOIN songs s ON s.id = t.song_id '
         'JOIN tracks_artists ta ON ta.cd_id = t.cd_id AND ta.track_number = t.track_number '
@@ -1200,7 +1203,7 @@ def tracks_edit_update(id: str) -> Response:
 
     # 編集が終了したらトラック編集ページに戻りたかったが、結果ページへ戻すことにする
     return redirect(url_for('tracks_edit_results',
-                            code='updated', cd_id=cd_id))
+                            code='updated'))
 
 
 @app.route('/tracks-edit-results/<code>')
@@ -1823,8 +1826,7 @@ def setlist_add_execute(id: str) -> Response:
                     '(concert_id, order_in_concert, artist_id) '
                     'VALUES (?, ?, ?) ',
                     (concert_id, number_of_order, artist_id))
-    except sqlite3.Error as e:
-        print(e)
+    except sqlite3.Error:
         return redirect(url_for('setlist_add_results',
                                     code='database-error'))
 
@@ -1910,6 +1912,167 @@ def setlist_del_results(code: str) -> str:
     """
     return render_template('setlist-del-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
+
+
+@app.route('/setlist-edit/<id>')
+def setlist_edit(id: str) -> str:
+    con = get_db()
+    cur = con.cursor()
+
+    concert = cur.execute('SELECT * FROM concerts WHERE id = ?', (id,)).fetchone()
+    songs = cur.execute('SELECT * FROM songs').fetchall()
+    artists = cur.execute('SELECT * FROM artists').fetchall()
+
+    performances = cur.execute(
+        'SELECT p.number_of_order, p.song_id, ap.artist_id '
+        'FROM performances p '
+        'JOIN artists_performances ap ON ap.concert_id = p.concert_id AND ap.order_in_concert = p.number_of_order '
+        'WHERE p.concert_id = ? '
+        , (id,)).fetchall()
+
+    # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('setlist-edit.html', concert=concert, performances=performances, songs=songs, artists=artists)
+
+@app.route('/setlist-edit/<id>', methods=['POST'])
+def setlist_edit_update(id: str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    # リクエストされた POST パラメータの内容を取り出す
+    concert_id = id
+    number_of_order_str = request.form['number_of_order']
+    new_song_id_str = request.form['new_song_id']
+    song_id_str = request.form['song_id']
+    new_artist_id_str = request.form['new_artist_id']
+    artist_id_str = request.form['artist_id']
+
+    try:
+        number_of_order = int(number_of_order_str)
+        new_song_id = int(new_song_id_str)
+        song_id = int(song_id_str)
+        artist_id = int(artist_id_str)
+    except ValueError:
+    # シリーズ通し番号が整数型へ変換できない
+        return redirect(url_for('setlist_edit_results',
+                    code='include-invalid-charactor'))
+
+    if new_artist_id_str == 'delete':
+        try:
+            cur.execute('DELETE FROM artists_performances WHERE concert_id = ? AND order_in_concert = ? AND artist_id = ?', (concert_id, number_of_order, artist_id))
+            con.commit()
+
+            # 編集が終了したらトラック編集ページに戻りたかったが、結果ページへ戻すことにする
+            return redirect(url_for('setlist_edit_results',
+                                    code='updated'))
+        except sqlite3.Error:
+            # データベースエラーが発生
+            return redirect(url_for('setlist_edit_results',
+                                    code='database-error'))
+    try:
+        new_artist_id = int(new_artist_id_str)
+    except ValueError:
+    # シリーズ通し番号が整数型へ変換できない
+        return redirect(url_for('setlist_edit_results',
+                    code='include-invalid-charactor'))
+
+    # 変更がない場合編集画面にそのまま戻る
+    if song_id == new_song_id and artist_id == new_artist_id:
+        return redirect(url_for('setlist_edit_results', code='unchanged'))
+    # 楽曲に変更があった場合
+    if song_id != new_song_id:
+        try:
+            # performances テーブルの指定された行のパラメータを更新
+            cur.execute(
+            'UPDATE performances '
+            'SET song_id = ?'
+            'WHERE concert_id = ? AND number_of_order = ? '
+            , (new_song_id, concert_id, number_of_order))
+        except sqlite3.Error:
+                return redirect(url_for('setlist_edit_results',
+                                        code='database-error'))
+
+    # アーティストに変更があった場合
+    if artist_id != new_artist_id:
+        try:
+            # tracks テーブルの指定された行のパラメータを更新
+            cur.execute(
+            'UPDATE artists_performances '
+            'SET artist_id = ? '
+            'WHERE concert_id = ? AND order_in_concert = ? AND artist_id = ?'
+            , (new_artist_id, concert_id, number_of_order, artist_id))
+        except sqlite3.Error:
+            return redirect(url_for('setlist_edit_results',
+                            code='database-error'))
+            # return render_template('index.html')
+
+    con.commit()
+
+    # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
+    return redirect(url_for('setlist_edit_results',
+                            code='updated'))
+
+
+@app.route('/setlist-edit-results/<code>')
+def setlist_edit_results(code: str) -> str:
+    return render_template('setlist-edit-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
+
+@app.route('/performance-artist-edit/<id>/<number_of_order>')
+def performance_artist_edit(id: str, number_of_order:str) -> str:
+
+    con = get_db()
+    cur = con.cursor()
+
+    artists = cur.execute('SELECT * FROM artists').fetchall()
+    performance = cur.execute('SELECT concert_id, number_of_order FROM performances WHERE concert_id = ? AND number_of_order = ? ', (id, number_of_order,)).fetchone()
+
+    # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('performance-artist-edit.html', concert_id=id, performance=performance, artists=artists)
+
+@app.route('/performance-artist-edit/<id>/<number_of_order>', methods=['POST'])
+def performance_artist_edit_update(id: str, number_of_order:str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    # リクエストされた POST パラメータの内容を取り出す
+    concert_id = id
+    artist_id_str = request.form['artist_id']
+    number_of_order_str = request.form['number_of_order']
+
+    try:
+        # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
+        number_of_order = int(number_of_order_str)
+        artist_id = int(artist_id_str)
+    except ValueError:
+    # シリーズ通し番号が整数型へ変換できない
+        return redirect(url_for('setlist_edit_results',
+                    code='include-invalid-charactor'))
+
+    track_artist = cur.execute('SELECT * FROM artists_performances WHERE concert_id = ? AND order_in_concert = ? AND artist_id = ?',
+                           (concert_id, number_of_order, artist_id,)).fetchone()
+    if track_artist is not None:
+        return redirect(url_for('setlist_edit_results',
+                                code='performance-artist-already-exists'))
+
+    try:
+        # cds テーブルに指定されたパラメータの行を挿入
+        cur.execute('INSERT INTO artists_performances '
+                    '(concert_id, order_in_concert, artist_id) '
+                    'VALUES (?, ?, ?)',
+                    (concert_id, number_of_order, artist_id))
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('setlist_edit_results',
+                                code='database-error'))
+    # コミット（データベース更新処理を確定）
+    con.commit()
+
+    # 編集が終了したらトラック編集ページに戻りたかったが、結果ページへ戻すことにする
+    return redirect(url_for('setlist_edit_results',
+                            code='updated'))
 
 
 

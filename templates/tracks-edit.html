@@ -41,7 +41,7 @@
           </option>
           {% endfor %}
         </select>
-          <br><a href="{{ url_for('track_artist_edit', id=cd.id, track_number=track.track_number) }}">トラックにアーティストを追加</a>
+          <br><a href="{{ url_for('track_artist_edit', id=cd.id, track_number=track.track_number) }}">アーティストを追加</a>
         <input type="hidden" name="track_number" value="{{track.track_number}}">
         <input type="hidden" name="song_id" value="{{track.song_id}}">
         <input type="hidden" name="artist_id" value="{{track.artist_id}}">
