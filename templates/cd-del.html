@@ -13,7 +13,7 @@
         CDタイトル: {{cd.title}}<br>
         本当にこのCDを削除しますか？<br>
         <form method="POST" action="{{url_for('cd_del_execute', id=id)}}">
-          <input type="submit" value="削除実行">
+          <input type="submit" value="削除実行" class="del">
         </form>
       </p>
     <p>

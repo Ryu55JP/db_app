@@ -73,6 +73,9 @@ RESULT_MESSAGES: Final[dict[str, str]] = {
     'コンサートを追加しました',
     'setlist-added':
     'セットリストに追加されました',
+    # tracks
+    'track-artist-already-exists':
+    '指定されたアーティストはすでに登録済みです',
 }
 
 
@@ -169,7 +172,7 @@ def cds() -> str:
     cur = get_db().cursor()
 
     # cds テーブルの全行から CD の情報を取り出した一覧を取得
-    cds = cur.execute('SELECT * FROM cds').fetchall()
+    cds = cur.execute('SELECT * FROM cds ORDER BY issued_date').fetchall()
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
     return render_template('cds.html', cds=cds)
@@ -1091,6 +1094,178 @@ def tracks_del_results(code: str) -> str:
     """
     return render_template('tracks-del-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
+
+@app.route('/tracks-edit/<id>')
+def tracks_edit(id: str) -> str:
+    con = get_db()
+    cur = con.cursor()
+
+    # CD タイトルを取得
+    cd = cur.execute('SELECT * FROM cds WHERE id = ?', (id,)).fetchone()
+
+    songs = cur.execute('SELECT * FROM songs').fetchall()
+    artists = cur.execute('SELECT * FROM artists').fetchall()
+
+    # トラック情報を取得
+    tracks = cur.execute(
+        'SELECT t.track_number, s.title AS song_title, a.name AS artist_name, t.song_id, ta.artist_id '
+        'FROM tracks t '
+        'JOIN songs s ON s.id = t.song_id '
+        'JOIN tracks_artists ta ON ta.cd_id = t.cd_id AND ta.track_number = t.track_number '
+        'JOIN artists a ON a.id = ta.artist_id '
+        'WHERE t.cd_id = ? '
+        'ORDER BY t.track_number '
+    , (id,)).fetchall()
+
+    # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('tracks-edit.html', cd=cd, tracks=tracks, songs=songs, artists=artists)
+
+@app.route('/tracks-edit/<id>', methods=['POST'])
+def tracks_edit_update(id: str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    # リクエストされた POST パラメータの内容を取り出す
+    cd_id = id
+    track_number_str = request.form['track_number']
+    song_id_str = request.form['song_id']
+    new_song_id_str = request.form['new_song_id']
+    artist_id_str = request.form['artist_id']
+    new_artist_id_str = request.form['new_artist_id']
+
+    try:
+        # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
+        track_number = int(track_number_str)
+        song_id = int(song_id_str)
+        new_song_id = int(new_song_id_str)
+        artist_id = int(artist_id_str)
+    except ValueError:
+    # シリーズ通し番号が整数型へ変換できない
+        return redirect(url_for('tracks_edit_results',
+                    code='include-invalid-charactor'))
+
+    if new_artist_id_str == 'delete':
+        try:
+            cur.execute('DELETE FROM tracks_artists WHERE cd_id = ? AND track_number = ? AND artist_id = ?', (cd_id, track_number, artist_id))
+            con.commit()
+
+            # 編集が終了したらトラック編集ページに戻りたかったが、結果ページへ戻すことにする
+            return redirect(url_for('tracks_edit_results',
+                                    code='updated', cd_id=cd_id))
+
+
+        except sqlite3.Error:
+            # データベースエラーが発生
+            return redirect(url_for('tracks_edit_results',
+                                    code='database-error'))
+    try:
+        new_artist_id = int(new_artist_id_str)
+    except ValueError:
+    # シリーズ通し番号が整数型へ変換できない
+        return redirect(url_for('tracks_edit_results',
+                    code='include-invalid-charactor'))
+
+
+    # 変更がない場合編集画面にそのまま戻る
+    if song_id == new_song_id and artist_id == new_artist_id:
+        return redirect(url_for('tracks_edit_results', code='unchanged'))
+    # 楽曲に変更があった場合
+    if song_id != new_song_id:
+        try:
+            # tracks テーブルの指定された行のパラメータを更新
+            cur.execute(
+            'UPDATE tracks '
+            'SET song_id = ? '
+            'WHERE cd_id = ? AND track_number = ? '
+            , (new_song_id, cd_id, track_number))
+        except sqlite3.Error:
+                return redirect(url_for('tracks_edit_results',
+                                        code='database-error'))
+
+    # アーティストに変更があった場合
+    if artist_id != new_artist_id:
+        try:
+            # tracks テーブルの指定された行のパラメータを更新
+            cur.execute(
+            'UPDATE tracks_artists '
+            'SET artist_id = ? '
+            'WHERE cd_id = ? AND track_number = ? AND artist_id = ?'
+            , (new_artist_id, cd_id, track_number, artist_id))
+        except sqlite3.Error:
+            return redirect(url_for('tracks_edit_results',
+                            code='database-error'))
+
+    con.commit()
+
+    # 編集が終了したらトラック編集ページに戻りたかったが、結果ページへ戻すことにする
+    return redirect(url_for('tracks_edit_results',
+                            code='updated', cd_id=cd_id))
+
+
+@app.route('/tracks-edit-results/<code>')
+def tracks_edit_results(code: str) -> str:
+
+    return render_template('tracks-edit-results.html',
+                           results=RESULT_MESSAGES.get(code, 'code error'))
+
+
+@app.route('/track-artist-edit/<id>/<track_number>')
+def track_artist_edit(id: str, track_number:str) -> str:
+
+    con = get_db()
+    cur = con.cursor()
+
+    artists = cur.execute('SELECT * FROM artists').fetchall()
+    track = cur.execute('SELECT cd_id, track_number FROM tracks WHERE cd_id = ? AND track_number = ? ', (id, track_number,)).fetchone()
+
+    # 編集対象の CD 情報をテンプレートへ渡してレンダリングしたものを返す
+    return render_template('track-artist-edit.html', cd_id=id, track=track, artists=artists)
+
+@app.route('/track-artist-edit/<id>/<track_number>', methods=['POST'])
+def track_artist_edit_update(id: str, track_number:str) -> Response:
+    # データベース接続してカーソルを得る
+    con = get_db()
+    cur = con.cursor()
+
+    # リクエストされた POST パラメータの内容を取り出す
+    cd_id = id
+    artist_id_str = request.form['artist_id']
+    track_number_str = request.form['track_number']
+
+    try:
+        # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
+        track_number = int(track_number_str)
+        artist_id = int(artist_id_str)
+    except ValueError:
+    # シリーズ通し番号が整数型へ変換できない
+        print(artist_id)
+        return redirect(url_for('tracks_edit_results',
+                    code='include-invalid-charactor'))
+
+    track_artist = cur.execute('SELECT * FROM tracks_artists WHERE cd_id = ? AND track_number = ? AND artist_id = ?',
+                           (cd_id, track_number, artist_id,)).fetchone()
+    if track_artist is not None:
+        return redirect(url_for('tracks_edit_results',
+                                code='track-artist-already-exists'))
+
+    try:
+        # cds テーブルに指定されたパラメータの行を挿入
+        cur.execute('INSERT INTO tracks_artists '
+                    '(cd_id, track_number, artist_id) '
+                    'VALUES (?, ?, ?)',
+                    (cd_id, track_number, artist_id))
+    except sqlite3.Error:
+        # データベースエラーが発生
+        return redirect(url_for('tracks_edit_results',
+                                code='database-error'))
+    # コミット（データベース更新処理を確定）
+    con.commit()
+
+    # 編集が終了したらトラック編集ページに戻りたかったが、結果ページへ戻すことにする
+    return redirect(url_for('tracks_edit_results',
+                            code='updated', cd_id=cd_id))
+
 
 # アーティスト関連ページ
 @app.route('/artists')

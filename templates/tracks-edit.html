@@ -1,0 +1,61 @@
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>トラック編集</title>
+    <link rel="stylesheet" href="../static/style.css"/>
+    <header>
+      <h1><a href="{{url_for('index')}}">ディスコグラフィ</a></h1>
+    </header>
+  </head>
+  <body>
+    <h1>トラック編集</h1>
+    <p>
+      登録する楽曲やアーティストは登録済である必要があります。<br>
+      <a href="{{url_for('song_add')}}">楽曲追加</a>
+      <a href="{{url_for('artist_add')}}">アーティスト追加</a>
+    </p>
+    <p>
+      <p>
+        トラックの楽曲変更は同じトラックに対して一括で行います。<br>
+      </p>
+      <p>
+        CDタイトル: {{cd.title}}<br>
+        <a href="{{url_for('track_add', id=cd.id)}}">トラックを追加</a>
+      </p>
+      {% for track in tracks %}
+      <form method="POST" action="{{url_for('tracks_edit', id=cd.id)}}">
+      <p>
+        <br>トラック{{track.track_number}}<br>
+        楽曲: <select name="new_song_id">
+          {% for song in songs %}
+            <option value="{{ song.id }}" {% if song.id == track.song_id %}selected{% endif %}>
+              {{ song.title }}
+            </option>
+          {% endfor %}
+        </select><br>
+        アーティスト: <select name="new_artist_id">
+          <option value='delete'>トラックからこのアーティストを削除</option>
+          {% for artist in artists %}
+          <option value="{{ artist.id }}" {% if artist.id == track.artist_id %}selected{% endif %}>
+            {{ artist.name }}
+          </option>
+          {% endfor %}
+        </select>
+          <br><a href="{{ url_for('track_artist_edit', id=cd.id, track_number=track.track_number) }}">トラックにアーティストを追加</a>
+        <input type="hidden" name="track_number" value="{{track.track_number}}">
+        <input type="hidden" name="song_id" value="{{track.song_id}}">
+        <input type="hidden" name="artist_id" value="{{track.artist_id}}">
+        <br><br><input type="submit" value="トラック{{track.track_number}}に対する編集を確定">
+      </p>
+    </form>
+      {% endfor %}
+    <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
+    <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
+      <a href="{{url_for('index')}}">TOP</a>
+      <a href="{{url_for('cds')}}">CD</a>
+      <a href="{{url_for('songs')}}">楽曲</a>
+      <a href="{{url_for('artists')}}">アーティスト</a>
+      <a href="{{url_for('concerts')}}">コンサート</a>
+    </footer>
+  </body>
+</html>

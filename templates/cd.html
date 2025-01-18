@@ -27,7 +27,7 @@
         {% endfor %}
       </ol>
       <p>
-        {#<a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>#}
+        <a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>
         <a href="{{url_for('track_add', id=cd.id)}}">トラックを追加</a><br>
         <a href="{{url_for('tracks_del', id=cd.id)}}">トラックを全て削除</a>（トラックを個別に削除することはできません）
       </p>
