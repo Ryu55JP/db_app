@@ -19,23 +19,17 @@
         <a href="{{url_for('artist_del', id=artist.id)}}">削除</a>
       </p>
     <h2>参加CD</h2>
-      <ul>
+      <p>
         {% for cd in cds %}
-          <li><a href="{{ url_for('cd', id=cd.cd_id) }}">{{ cd.cd_title or 'タイトルなし' }}</a>
+          <a href="{{ url_for('cd', id=cd.cd_id) }}">{{ cd.cd_title or 'タイトルなし' }}</a><br>
         {% endfor %}
-      </ul>
+          </p>
     <h2>参加コンサート</h2>
-      <ul>
+      <p>
         {% for concert in concerts %}
-          <li><a href="{{ url_for('concert', id=concert.concert_id) }}">{{ concert.concert_title or 'タイトルなし' }}</a>
+          <a href="{{ url_for('concert', id=concert.concert_id) }}">{{ concert.concert_title or 'タイトルなし' }}</a><br>
         {% endfor %}
-      </ul>
-    <p>
-      <br>
-      <hr style="margin-top: 20px; margin-bottom: 20px;">
-      <a href="{{url_for('artists')}}">アーティスト一覧に戻る</a><br>
-      <a href="{{url_for('index')}}">TOP</a>
-    </p>
+      </p>
   </body>
   <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
   <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">

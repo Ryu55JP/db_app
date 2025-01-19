@@ -19,11 +19,11 @@
         <a href="{{url_for('concert_del', id=concert.id)}}">削除</a>
       </p>
     <h2>セットリスト</h2>
-      <ol>
+      <p>
         {% for performance in performances %}
-          <li><a href="{{url_for('song', id=performance.song_id)}}">{{performance.song_title}}</a>&emsp;歌: {{performance.artists}}<br>
+          {{performance.number_of_order}}. <a href="{{url_for('song', id=performance.song_id)}}">{{performance.song_title}}</a>&emsp;歌: {{performance.artists}}<br>
         {% endfor %}
-      </ol>
+      </p>
       <p>
         <a href="{{url_for('setlist_edit', id=concert.id)}}">セットリストを編集</a><br>
         <a href="{{url_for('setlist_add', id=concert.id)}}">セットリストに追加</a>
@@ -31,12 +31,6 @@
         <a href="{{url_for('setlist_del', id=concert.id)}}">セットリストを全て削除</a><br>
         （セットリストを個別に削除することはできません）
       </p>
-    <p>
-      <br>
-      <hr style="margin-top: 20px; margin-bottom: 20px;">
-      <a href="{{url_for('concerts')}}">コンサート一覧に戻る</a><br>
-      <a href="{{url_for('index')}}">TOP</a>
-    </p>
     <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
     <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
       <a href="{{url_for('index')}}">TOP</a>
