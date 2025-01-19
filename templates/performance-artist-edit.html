@@ -1,31 +1,30 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
-    <title>CD情報編集</title>
+    <title>パフォーマンス参加アーティスト編集</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}"/>
     <header>
       <h1><a href="{{url_for('index')}}">ディスコグラフィ</a></h1>
     </header>
   </head>
   <body>
-    <h1>CD情報編集</h1>
+    <h1>パフォーマンス参加アーティスト編集</h1>
       <p>
         <form method="POST"
-              action="{{url_for('cd_edit', id=cd.id)}}">
-          CDタイトル: <input type="text" name="title" value="{{cd.title}}"><br>
-          品番: {{cd.id}}<br>
-          シリーズ: <input type="text" name="series_name"
-                        value="{{cd.series_name}}"> - <input type="text" name="order_in_series"
-                        value="{{cd.order_in_series or ''}}"><br>
-          発売日: <input type="date" name="issued_date"
-                      value="{{cd.issued_date}}"><br>
+              action="{{url_for('performance_artist_edit', id=performance.concert_id, number_of_order=performance.number_of_order)}}">
+              <input type="hidden" name="number_of_order" value={{performance.number_of_order}}>
+          追加アーティスト: <select name="artist_id">
+            {% for artist in artists %}
+            <option value="{{ artist.id }}">
+              {{ artist.name }}
+            </option>
+            {% endfor %}
+          </select>
           <input type="submit" value="決定">
         </form>
       </p>
-      <p>
-        <br>
-        <a href="{{url_for('cd', id=cd.id)}}">CD詳細に戻る</a><br>
-      </p>
+      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
+      <a href="{{url_for('concert', id=concert_id)}}">コンサート詳細に戻る</a><br>
     <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
   <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
     <a href="{{url_for('index')}}">TOP</a>

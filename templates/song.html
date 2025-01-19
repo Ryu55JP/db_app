@@ -2,6 +2,10 @@
   <head>
     <meta charset="UTF-8">
     <title>{{song.title}}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}"/>
+    <header>
+      <h1><a href="{{url_for('index')}}">ディスコグラフィ</a></h1>
+    </header>
   </head>
   <body>
     <h1>楽曲詳細</h1>
@@ -15,22 +19,24 @@
         <a href="{{url_for('song_del', id=song.id)}}">削除</a>
       </p>
     <h2>収録CD</h2>
-      <ul>
-        {% for cd in cds %}
-          <li><a href="{{url_for('cd', id=cd.cd_id)}}" style="color: black;">{{cd.title}}</a><br>
-        {% endfor %}
-      </ul>
-    <h2>披露されたコンサート</h2>
-      <ul>
-        {% for concert in concerts %}
-          <li><a href="{{url_for('concert', id=concert.concert_id)}}" style="color: black;">{{concert.title}}</a>
-        {% endfor %}
-      </ul>
     <p>
-      <br>
-      <hr style="margin-top: 20px; margin-bottom: 20px;">
-      <a href="{{url_for('songs')}}">楽曲一覧に戻る</a><br>
+        {% for cd in cds %}
+          <a href="{{url_for('cd', id=cd.cd_id)}}">{{cd.title}}</a><br>
+        {% endfor %}
+      </p>
+    <h2>披露されたコンサート</h2>
+    <p>
+        {% for concert in concerts %}
+          <a href="{{url_for('concert', id=concert.concert_id)}}">{{concert.title}}</a><br>
+        {% endfor %}
+      </p>
+    <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
+    <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
       <a href="{{url_for('index')}}">TOP</a>
-    </p>
+      <a href="{{url_for('cds')}}">CD</a>
+      <a href="{{url_for('songs')}}">楽曲</a>
+      <a href="{{url_for('artists')}}">アーティスト</a>
+      <a href="{{url_for('concerts')}}">コンサート</a>
+    </footer>
   </body>
 </html>

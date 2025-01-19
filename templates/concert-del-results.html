@@ -2,17 +2,23 @@
   <head>
     <meta charset="UTF-8">
     <title>コンサート削除結果</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}"/>
+    <header>
+      <h1><a href="{{url_for('index')}}">ディスコグラフィ</a></h1>
+    </header>
   </head>
   <body>
     <h1>コンサート削除結果</h1>
       <p>
         {{results}}
       </p>
-    <p>
-      <br>
-      <hr style="margin-top: 20px; margin-bottom: 20px;">
-      <a href="{{url_for('concerts')}}">コンサート一覧に戻る</a><br>
+    <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
+    <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
       <a href="{{url_for('index')}}">TOP</a>
-    </p>
+      <a href="{{url_for('cds')}}">CD</a>
+      <a href="{{url_for('songs')}}">楽曲</a>
+      <a href="{{url_for('artists')}}">アーティスト</a>
+      <a href="{{url_for('concerts')}}">コンサート</a>
+    </footer>
   </body>
 </html>

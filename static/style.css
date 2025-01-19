@@ -1,0 +1,98 @@
+@charset "utf-8";
+
+@media (hover: hover) {
+    a:hover {
+      color: #8dbaff;
+      text-decoration: underline;
+    }
+  }
+
+* {
+    font-family:
+    "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans",
+    Meiryo,
+    "Helvetica Neue",
+    Arial,
+    sans-serif;
+}
+
+body {
+    /*  */
+}
+
+header {
+    color: white;
+    text-align: center;
+    background-color: #8dbaff;
+    opacity: 0.95;
+    position: sticky;
+    left: 0;
+    right: 0;
+    top: 0;
+    width: 100%;
+    a:hover {
+        color: #e0e0ff;
+        text-decoration: none;
+      }
+
+}
+
+header a {
+    color: white;
+    text-decoration: none;
+    font-size: 40px;
+}
+
+h1 {
+    text-indent: 3%;
+}
+
+header h1 {
+    text-indent: 0;
+}
+
+h2 {
+    text-indent: 6%;
+}
+
+p {
+    margin-left: 9%;
+}
+
+a {
+    text-decoration: none;
+    color: blue;
+    margin-left: 5%;
+}
+
+a.edits {
+    margin-left: 9%;
+}
+
+input.del {
+    color: red;
+    margin-left: 10%;
+    font-size: 15px;
+}
+
+input {
+    color: black;
+    margin-left: 5%;
+    font-size: 15px;
+}
+
+form {
+    margin-left: 5%;
+    line-height: 40px;
+}
+
+ol {
+    margin-left: 5%;
+    line-height: 25px;
+}
+
+ul {
+    margin-left: 5%;
+    line-height: 25px;
+}
