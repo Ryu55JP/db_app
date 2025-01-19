@@ -2,7 +2,7 @@
   <head>
     <meta charset="UTF-8">
     <title>トラック追加</title>
-    <link rel="stylesheet" href="../static/style.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}"/>
     <header>
       <h1><a href="{{url_for('index')}}">ディスコグラフィ</a></h1>
     </header>
@@ -26,16 +26,10 @@
           <input type="hidden" name="id" value="{{cd.id}}">
           <input type="submit" value="追加">
         </form>
+        <p><br>
         <a href="{{ url_for('cd', id=cd.id) }}">CD詳細に戻る</a><br>
       </p>
-      <p>
-        楽曲やアーティストのIDはそれぞれの詳細ページを参照してください<br>
-        <a href="{{url_for('songs')}}">楽曲一覧</a><br>
-        <a href="{{url_for('artists')}}">アーティスト一覧</a>
       </p>
-    <p>
-      <a href="{{url_for('cd', id=cd.id)}}">CD詳細に戻る</a><br>
-    </p>
     <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
     <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
       <a href="{{url_for('index')}}">TOP</a>

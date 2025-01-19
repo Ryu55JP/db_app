@@ -2,7 +2,7 @@
   <head>
     <meta charset="UTF-8">
     <title>{{cd.title}}</title>
-    <link rel="stylesheet" href="../static/style.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}"/>
     <header>
       <h1><a href="{{url_for('index')}}">ディスコグラフィ</a></h1>
     </header>
@@ -13,7 +13,7 @@
       <p>
         CDタイトル: {{cd.title}}<br>
         品番: {{cd.id}}<br>
-        シリーズ: {{cd.series_name}} - {{cd.order_in_series}}<br>
+        シリーズ: {% if cd.series_name != None and cd.order_in_series != None %}{{cd.series_name}} - {{cd.order_in_series}}{% endif %}{% if cd.series_name == None or cd.order_in_series == None %}なし{% endif %}<br>
         発売日: {{cd.issued_date}}<br>
       </p>
       <p>
@@ -21,11 +21,10 @@
         <a href="{{url_for('cd_del', id=cd.id)}}">削除</a>
       </p>
     <h2>収録曲</h2>
-      <ol>
-        {% for song in songs %}
-          <li><a href="{{url_for('song', id=song.song_id)}}" >{{song.title}}</a>&emsp;歌: {{song.artists}}
-        {% endfor %}
-      </ol>
+    <p>{% for song in songs %}
+      {{song.track_number}}. <a href="{{url_for('song', id=song.song_id)}}" >{{song.title}}</a>&emsp;歌: {{song.artists}}<br>
+    {% endfor %}
+  </p>
       <p>
         <a href="{{url_for('tracks_edit', id=cd.id)}}">トラックを編集</a><br>
         <a href="{{url_for('track_add', id=cd.id)}}">トラックを追加</a><br>

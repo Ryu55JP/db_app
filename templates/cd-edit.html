@@ -2,7 +2,7 @@
   <head>
     <meta charset="UTF-8">
     <title>CD情報編集</title>
-    <link rel="stylesheet" href="../static/style.css"/>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}"/>
     <header>
       <h1><a href="{{url_for('index')}}">ディスコグラフィ</a></h1>
     </header>
@@ -16,14 +16,16 @@
           品番: {{cd.id}}<br>
           シリーズ: <input type="text" name="series_name"
                         value="{{cd.series_name}}"> - <input type="text" name="order_in_series"
-                        value="{{cd.order_in_series}}"><br>
+                        value="{{cd.order_in_series or ''}}"><br>
           発売日: <input type="date" name="issued_date"
                       value="{{cd.issued_date}}"><br>
           <input type="submit" value="決定">
         </form>
       </p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('cd', id=cd.id)}}">CD詳細に戻る</a><br>
+      <p>
+        <br>
+        <a href="{{url_for('cd', id=cd.id)}}">CD詳細に戻る</a><br>
+      </p>
     <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
   <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
     <a href="{{url_for('index')}}">TOP</a>

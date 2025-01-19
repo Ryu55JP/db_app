@@ -76,9 +76,13 @@ RESULT_MESSAGES: Final[dict[str, str]] = {
     # track
     'track-artist-already-exists':
     '指定されたアーティストはすでに登録済みです',
+    'add-artist-from-tracks-edit-page':
+    'セットリストへのアーティストの追加は編集画面から実行してください',
     # selist
     'performance-artist-already-exists':
     '指定されたアーティストはすでに登録済みです',
+    'add-artist-from-selist-edit-page':
+    'セットリストへのアーティストの追加は編集画面から実行してください',
 }
 
 
@@ -365,6 +369,9 @@ def cd_add_results(code: str) -> str:
     Returns:
       str: ページのコンテンツ
     """
+
+
+
     return render_template('cd-add-results.html',
                            results=RESULT_MESSAGES.get(code, 'code error'))
 
@@ -959,6 +966,15 @@ def track_add_execute(id: str) -> Response:
     # シリーズ通し番号が整数型へ変換できない
         return redirect(url_for('track_add_results',
                     code='track-number-has-invalid-charactor'))
+
+    check_same_track_number = cur.execute('SELECT * FROM tracks WHERE cd_id = ? AND track_number = ?',
+        (cd_id, track_number)).fetchall()
+
+    if len(check_same_track_number) > 0:
+        return redirect(url_for('track_add_results',
+                    code='add-artist-from-tracks-edit-page'))
+
+
     try:
         # 文字列型で渡されたシリーズ通し番号を整数型へ変換する
         song_id = int(song_id_str)
@@ -1018,12 +1034,12 @@ def track_add_execute(id: str) -> Response:
     con.commit()
 
     return redirect(url_for('track_add_results',
-                            code='track-added'))
+                            code='track-added', cd_id=cd_id))
 
-@app.route('/track-add-results/<code>')
-def track_add_results(code: str) -> str:
+@app.route('/track-add-results/<code>/<cd_id>')
+def track_add_results(code: str, cd_id:str) -> str:
     return render_template('track-add-results.html',
-                           results=RESULT_MESSAGES.get(code, 'code error'))
+                           results=RESULT_MESSAGES.get(code, 'code error'), cd_id=cd_id)
 
 @app.route('/tracks-del/<id>')
 def tracks_del(id: str) -> str:
@@ -1795,6 +1811,14 @@ def setlist_add_execute(id: str) -> Response:
     # セットリスト番号が整数型へ変換できない
         return redirect(url_for('setlist_add_results',
                     code='number-of-order-has-invalid-charactor'))
+
+    check_same_number_of_order = cur.execute('SELECT * FROM performances WHERE concert_id = ? AND number_of_order = ?',
+        (concert_id, number_of_order)).fetchone()
+
+    if check_same_number_of_order is not None:
+        return redirect(url_for('setlist_add_results',
+                    code='add-artist-from-selist-edit-page'))
+
 
     # 楽曲IDの存在チェックをする：
     # songs テーブルで同じIDの行を 1 行だけ取り出す
