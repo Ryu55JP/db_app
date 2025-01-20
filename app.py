@@ -205,7 +205,7 @@ def cds_filtered() -> str:
 
     # cds テーブルからタイトルで絞り込み、
     # 得られた全行から CD の情報を取り出した一覧を取得
-    cds = cur.execute('SELECT * FROM cds WHERE title LIKE ?', 
+    cds = cur.execute('SELECT * FROM cds WHERE title LIKE ? ORDER BY issued_date', 
                       (request.form['title_filter'],)).fetchall()
 
     # 一覧をテンプレートへ渡してレンダリングしたものを返す
