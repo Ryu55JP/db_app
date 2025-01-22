@@ -9,6 +9,11 @@
   </head>
   <body>
     <h1>トラック追加</h1>
+    <p>
+      登録する楽曲やアーティストは登録済である必要があります。<br>
+      <a href="{{url_for('song_add')}}">楽曲追加</a>
+      <a href="{{url_for('artist_add')}}">アーティスト追加</a>
+    </p>
       <p>
         <form method="POST" action="{{url_for('track_add_execute', id=cd.id)}}">
           CDタイトル: {{cd.title}}<br>
@@ -23,6 +28,8 @@
               <option value="{{artist.id}}">{{artist.name}}</option>
             {% endfor %}
           </select><br>
+          <p>複数アーティストの場合は、この画面でアーティストを1つ選択したのち、
+            <br>トラック編集画面の「アーティスト追加」からアーティストを追加してください。</p>
           <input type="hidden" name="id" value="{{cd.id}}">
           <input type="submit" value="追加">
         </form>

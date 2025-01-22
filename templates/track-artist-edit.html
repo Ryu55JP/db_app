@@ -1,14 +1,18 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8">
-    <title>トラック参加アーティスト編集</title>
+    <title>トラック参加アーティスト追加</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css')}}"/>
     <header>
       <h1><a href="{{url_for('index')}}">ディスコグラフィ</a></h1>
     </header>
   </head>
   <body>
-    <h1>トラック参加アーティスト編集</h1>
+    <h1>トラック参加アーティスト追加</h1>
+    <p>
+      登録するアーティストは登録済である必要があります。<br>
+      <a href="{{url_for('artist_add')}}">アーティスト追加</a>
+    </p>
       <p>
         <form method="POST"
               action="{{url_for('track_artist_edit', id=track.cd_id, track_number=track.track_number)}}">
@@ -23,8 +27,7 @@
           <input type="submit" value="決定">
         </form>
       </p>
-      <hr style="margin-top: 20px; margin-bottom: 20px;"><br>
-      <a href="{{url_for('cd', id=cd_id)}}">CD詳細に戻る</a><br>
+      <p><br><a href="{{url_for('cd', id=cd_id)}}">CD詳細に戻る</a><br></p>
     <hr style="margin-top: 20px; margin-bottom: 20px; border-top: 2px solid black; width: 100%;">
   <footer style="display: flex; justify-content: center; gap: 20px; align-items: center; margin-top: 20px; margin-bottom: 20px;">
     <a href="{{url_for('index')}}">TOP</a>

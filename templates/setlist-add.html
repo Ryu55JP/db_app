@@ -9,6 +9,11 @@
   </head>
   <body>
     <h1>セットリストに追加</h1>
+    <p>
+      登録する楽曲やアーティストは登録済である必要があります。<br>
+      <a href="{{url_for('song_add')}}">楽曲追加</a>
+      <a href="{{url_for('artist_add')}}">アーティスト追加</a>
+    </p>
       <p>
         <form method="POST" action="{{url_for('setlist_add_execute', id=concert.id)}}">
           コンサートタイトル: {{concert.title}}<br>

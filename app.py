@@ -77,11 +77,13 @@ RESULT_MESSAGES: Final[dict[str, str]] = {
     'track-artist-already-exists':
     '指定されたアーティストはすでに登録済みです',
     'add-artist-from-tracks-edit-page':
+    'すでに登録済みのトラック番号が入力されました - '
     'セットリストへのアーティストの追加は編集画面から実行してください',
     # selist
     'performance-artist-already-exists':
     '指定されたアーティストはすでに登録済みです',
     'add-artist-from-selist-edit-page':
+    'すでに登録済みのセットリスト番号が入力されました - '
     'セットリストへのアーティストの追加は編集画面から実行してください',
 }
 
