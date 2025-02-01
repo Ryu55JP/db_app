@@ -1,4 +1,5 @@
 **/__pycache__/**
 discography.db
 .DS_Store
+.htaccess
 notes.txt
